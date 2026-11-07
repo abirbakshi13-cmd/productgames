@@ -4,10 +4,15 @@ function isMissing(value) {
   return value === null || value === undefined
 }
 
+// A profile value may itself be an array (e.g. transport: ["car", "transit"]);
+// it matches if any of its values is allowed.
+function valueAllowed(value, allowed) {
+  const ok = (v) => (Array.isArray(allowed) ? allowed.includes(v) : v === allowed)
+  return Array.isArray(value) ? value.some(ok) : ok(value)
+}
+
 function matches(when, profile) {
-  return Object.entries(when || {}).every(([key, allowed]) =>
-    Array.isArray(allowed) ? allowed.includes(profile[key]) : profile[key] === allowed,
-  )
+  return Object.entries(when || {}).every(([key, allowed]) => valueAllowed(profile[key], allowed))
 }
 
 export function computeReceipt(profile, story) {
@@ -15,11 +20,8 @@ export function computeReceipt(profile, story) {
   if (missing) return { status: 'needs_info', askField: missing }
 
   const hit = (story.receipts || []).find((r) => matches(r.when, profile || {}))
-  if (hit) {
-    const fields = { ...hit }
-    delete fields.when
-    return { status: 'affected', ...fields }
-  }
+  // `when` is kept on the receipt so the UI can explain which answers matched.
+  if (hit) return { status: 'affected', ...hit }
   return { status: 'not_affected', text: story.otherwise }
 }
 

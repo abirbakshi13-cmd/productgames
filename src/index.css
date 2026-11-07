@@ -3,62 +3,31 @@
 }
 
 html,
-body,
-#root {
-  height: 100%;
+body {
   margin: 0;
+  min-height: 100%;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #eef0f3;
-  color: #1a1a1a;
+  font-family: var(--font-sans);
+  background: #e9e4da;
+  color: var(--ink);
 }
 
 #root {
   display: flex;
   justify-content: center;
+  padding: 24px 0;
 }
 
+/* 390x844 phone frame; each screen fills it and brings its own tab bar */
 .phone {
+  position: relative;
   width: 390px;
-  max-width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-  border-radius: 24px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  height: 844px;
+  flex: none;
   overflow: hidden;
-}
-
-.phone-content {
-  flex: 1;
-  overflow-y: auto;
-}
-
-.tab-bar {
-  display: flex;
-  border-top: 1px solid #e5e7eb;
-  background: #fff;
-}
-
-.tab {
-  flex: 1;
-  padding: 14px 0;
-  border: none;
-  background: none;
-  font: inherit;
-  font-size: 14px;
-  color: #6b7280;
-  cursor: pointer;
-}
-
-.tab.active {
-  color: #111;
-  font-weight: 600;
-}
-
-.screen-placeholder {
-  padding: 24px;
+  background: var(--paper);
+  border-radius: 28px;
+  box-shadow: 0 8px 32px rgba(28, 27, 31, 0.12);
 }

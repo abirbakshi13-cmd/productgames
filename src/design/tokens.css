@@ -1,0 +1,43 @@
+/* Twin — generated from tokens.json */
+:root, [data-theme="light"] {
+  --paper: #f6f2ea;
+  --surface: #ffffff;
+  --line: #e3dbcd;
+  --ink: #1c1b1f;
+  --ink-soft: #3d3a37;
+  --ink-muted: #5c5853;
+  --on-ink: #f6f2ea;
+  --signal: #ff5b2e;
+  --butter: #fce38a;
+  --sky: #bed8fa;
+  --peach: #ffcbaa;
+  --mint: #bfe8d1;
+  --lilac: #d8cff7;
+  --blush: #f8c3d1;
+  --shadow-lift: 0 8px 24px rgba(28, 27, 31, 0.08);
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+  --radius-pill: 999px;
+  --stroke-character: 4px;
+  --stroke-ui: 2px;
+  --font-display: "Bricolage Grotesque", "Figtree", system-ui, sans-serif;
+  --font-sans: "Figtree", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+}
+.display-xl { font-family: var(--font-display); font-size: 44px; line-height: 44px; font-weight: 800; letter-spacing: -0.02em; }
+.display-l { font-family: var(--font-display); font-size: 32px; line-height: 34px; font-weight: 800; letter-spacing: -0.015em; }
+.headline { font-family: var(--font-display); font-size: 21px; line-height: 25px; font-weight: 700; letter-spacing: -0.01em; }
+.body-l { font-family: var(--font-sans); font-size: 17px; line-height: 24px; font-weight: 500; }
+.body { font-family: var(--font-sans); font-size: 15px; line-height: 21px; font-weight: 500; }
+.label { font-family: var(--font-sans); font-size: 14px; line-height: 18px; font-weight: 600; }
+.meta { font-family: var(--font-mono); font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.02em; text-transform: uppercase; }

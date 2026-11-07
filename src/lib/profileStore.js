@@ -2,6 +2,7 @@
 const PROFILE_KEY = 'receipts.profile'
 const HISTORY_KEY = 'receipts.history'
 const OPENED_KEY = 'receipts.opened'
+const LOOK_KEY = 'receipts.look'
 
 const memory = {} // used when localStorage is missing or throws
 const listeners = new Set()
@@ -65,6 +66,7 @@ export function clearProfile() {
   removeKey(PROFILE_KEY)
   removeKey(HISTORY_KEY)
   removeKey(OPENED_KEY)
+  removeKey(LOOK_KEY)
   cached = null
   loaded = true
   notify()
