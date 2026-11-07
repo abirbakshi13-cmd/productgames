@@ -25,7 +25,9 @@ function relativeDate(dateStr) {
 
 function firstSentence(text) {
   if (!text) return '';
-  const m = text.match(/^[^.!?]*[.!?]/);
+  // A sentence ends at .!? followed by whitespace + a capital, or by the end of the string.
+  // Without the lookahead, "the U.S. and Iran" and "$22.14 an hour" truncate mid-sentence.
+  const m = text.match(/^.*?[.!?](?=\s+[A-Z$"'(]|\s*$)/s);
   return (m ? m[0] : text).trim();
 }
 

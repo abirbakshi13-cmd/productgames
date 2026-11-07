@@ -58,6 +58,8 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  /* 44px tap target per the spec; the text stays 14px */
+  min-height: var(--r-tap);
   margin-top: 4px;
   font-size: 14px;
   font-weight: 600;

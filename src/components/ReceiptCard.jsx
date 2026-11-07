@@ -35,7 +35,9 @@ function formatDaysLeft(n) {
 }
 
 function formatMoney(low, high, direction, unit) {
-  const fmt = (n) => Math.round(n).toLocaleString('en-US')
+  // Cents matter under $10, so "$0.84/hr" never renders as "$1/hr".
+  const fmt = (n) =>
+    Math.abs(n) < 10 && !Number.isInteger(n) ? n.toFixed(2) : Math.round(n).toLocaleString('en-US')
   const sign = direction === 'saving' ? '+' : '−'
   const body = low === high ? `$${fmt(low)}` : `$${fmt(low)}–$${fmt(high)}`
   return `${sign}${body}${unit || ''}`
@@ -178,7 +180,10 @@ function HowWeCalculated({ story, receipt, profile, expanded, setExpanded }) {
     .map(([field, value]) => {
       if (field === 'state') return `State: ${value}`
       const label = FIELD_LABELS[field] || field
-      return `${label}: ${labelFor(field, value)}`
+      // A `when` value may be an array meaning "any of these"; show the reader's own
+      // answer rather than the whole set ("Part-time", not "part-time,full-time").
+      const shown = Array.isArray(value) ? (profile?.[field] ?? value) : value
+      return `${label}: ${labelFor(field, shown)}`
     })
 
   const evidence = receipt.evidence

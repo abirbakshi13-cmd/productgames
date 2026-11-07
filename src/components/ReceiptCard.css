@@ -141,7 +141,9 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 0;
+  /* vertical padding brings the tap target to var(--r-tap) without changing the text size */
+  min-height: var(--r-tap);
+  padding: 4px 0;
   border: none;
   background: none;
   font: inherit;

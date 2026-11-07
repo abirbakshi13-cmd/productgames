@@ -2,8 +2,11 @@ import './ReceiptChip.css';
 
 const PERIOD_WORDS = { '/mo': 'month', '/yr': 'year', '/hr': 'hour' };
 
+// Cents matter under $10: rounding $0.84/hr to "$1/hr" overstates it by 19%.
 function fmtNum(n) {
-  return Math.round(n).toLocaleString('en-US');
+  return Math.abs(n) < 10 && !Number.isInteger(n)
+    ? n.toFixed(2)
+    : Math.round(n).toLocaleString('en-US');
 }
 
 function moneyLabel({ low, high, unit, direction }) {
@@ -14,8 +17,7 @@ function moneyLabel({ low, high, unit, direction }) {
 
 function moneyAria({ low, high, unit, direction }) {
   const word = direction === 'saving' ? 'saving' : 'cost';
-  const amount =
-    low === high ? `${Math.round(low)} dollars` : `${Math.round(low)} to ${Math.round(high)} dollars`;
+  const amount = low === high ? `${fmtNum(low)} dollars` : `${fmtNum(low)} to ${fmtNum(high)} dollars`;
   if (unit === ' one-time') return `Estimated ${word} of ${amount}, one time`;
   const period = PERIOD_WORDS[unit] || 'period';
   return `Estimated ${word} of ${amount} per ${period}`;
