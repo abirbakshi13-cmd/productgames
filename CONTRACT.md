@@ -15,7 +15,7 @@
   neighborhood: "Capitol Hill",  // string label from onboarding
   roles: ["parttime", "study"],  // "fulltime" | "parttime" | "study" | "figuring"
   incomeRange: "1k-2.5k",        // "under-1k" | "1k-2.5k" | "2.5k+" | null
-  cares: ["money", "home"]       // topic ids: money | move | home | health | rights | campus
+  cares: ["money", "home"]       // topic ids: money | move | home | health | rights
 }
 
 // LOOK (localStorage "receipts.look"), the Twin character; cleared by clearProfile()

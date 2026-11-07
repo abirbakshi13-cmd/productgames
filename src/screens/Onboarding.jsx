@@ -38,8 +38,7 @@ const QUESTIONS = [
     { id: 'move', label: 'Getting around', icon: 'train', topic: 'move', adds: ['Cares: getting around'] },
     { id: 'home', label: 'Home', icon: 'house', topic: 'home', adds: ['Cares: home'] },
     { id: 'health', label: 'Health', icon: 'heart', topic: 'health', adds: ['Cares: health'] },
-    { id: 'rights', label: 'Rights and power', icon: 'ballot', topic: 'rights', adds: ['Cares: rights'] },
-    { id: 'campus', label: 'Work and school', icon: 'briefcase', topic: 'campus', adds: ['Cares: work'] }] },
+    { id: 'rights', label: 'Rights and power', icon: 'ballot', topic: 'rights', adds: ['Cares: rights'] }] },
 ]
 
 const isValidZip = (zip) => /^\d{5}$/.test(zip || '')
@@ -118,7 +117,9 @@ function answersFromProfile(profile) {
   const earn = invert(EARN_TO_INCOME)[p.incomeRange]
   if (earn) a.earn = earn
 
-  if (Array.isArray(p.cares) && p.cares.length) a.care = p.cares.slice()
+  // "campus" (Cares: work) was removed; drop it from older profiles on edit.
+  const cares = Array.isArray(p.cares) ? p.cares.filter((c) => c !== 'campus') : []
+  if (cares.length) a.care = cares
 
   if (LOANS.includes(p.loans)) a.loans = p.loans
 

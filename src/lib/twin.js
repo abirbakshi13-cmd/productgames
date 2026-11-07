@@ -194,7 +194,6 @@ const CARE_CHIPS = {
   home: 'Cares: home',
   health: 'Cares: health',
   rights: 'Cares: rights',
-  campus: 'Cares: work',
 }
 
 function asArray(value) {
