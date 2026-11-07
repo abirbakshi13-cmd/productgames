@@ -1,0 +1,253 @@
+.rcard {
+  background: var(--r-surface);
+  border-radius: var(--r-radius);
+  border: 1px solid var(--r-border);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rcard--saving {
+  border-color: var(--r-saving);
+}
+
+.rcard--cost {
+  border-color: var(--r-cost);
+}
+
+.rcard--info {
+  border-color: var(--r-info);
+}
+
+.rcard--muted {
+  border-color: var(--r-muted);
+}
+
+.rcard-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rcard-head-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--r-text);
+}
+
+.rcard-head-sub {
+  font-size: 12px;
+  color: var(--r-subtle);
+}
+
+.rcard-result {
+  animation: rcard-fade-in 200ms ease-out;
+}
+
+@keyframes rcard-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rcard-result {
+    animation: none;
+  }
+}
+
+.rcard-money-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rcard-amount {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.rcard-amount--saving {
+  color: var(--r-saving);
+}
+
+.rcard-amount--cost {
+  color: var(--r-cost);
+}
+
+.rcard-pill {
+  flex-shrink: 0;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--r-muted-bg);
+  color: var(--r-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.rcard-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--r-info);
+}
+
+.rcard-label-row--muted {
+  color: var(--r-muted);
+}
+
+.rcard-deadline-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.rcard-deadline-date {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--r-info);
+}
+
+.rcard-deadline-days {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--r-subtle);
+}
+
+.rcard-text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--r-text);
+}
+
+.rcard-how {
+  border-top: 1px solid var(--r-border);
+  padding-top: 10px;
+}
+
+.rcard-how-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--r-text);
+  cursor: pointer;
+}
+
+.rcard-chev {
+  transition: transform 150ms ease;
+  flex-shrink: 0;
+}
+
+.rcard-chev--open {
+  transform: rotate(180deg);
+}
+
+.rcard-how-panel {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rcard-how-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rcard-how-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--r-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.rcard-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rcard-chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--r-muted-bg);
+  color: var(--r-text);
+  font-size: 12px;
+}
+
+.rcard-calc {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 14px;
+  color: var(--r-text);
+  background: var(--r-page);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.rcard-quote {
+  margin: 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--r-border);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--r-subtle);
+  font-style: italic;
+}
+
+.rcard-privacy {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--r-subtle);
+}
+
+.rcard-otherwise {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--r-radius);
+  background: var(--r-page);
+}
+
+.rcard-otherwise-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--r-text);
+}
+
+.rcard-otherwise-text {
+  margin: 2px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--r-subtle);
+}
+
+.rcard-stage-note {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 12px;
+  font-weight: 600;
+}
