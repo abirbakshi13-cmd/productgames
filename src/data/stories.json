@@ -1,1 +1,83 @@
-[]
+[
+  {
+    "id": "fed-loan-payment-2026",
+    "topicKey": "federal-loan-repayment-change",
+    "headline": "Placeholder: Federal student loan repayment plan changes",
+    "summary": "Placeholder story. A change to federal repayment plans raises monthly payments for many borrowers.",
+    "source": { "name": "Placeholder News", "url": "https://example.com/fed-loan-payment", "date": "2026-10-13" },
+    "category": "loans",
+    "stage": "passed",
+    "needs": ["loans"],
+    "receipts": [
+      {
+        "when": { "loans": ["federal", "both"] },
+        "type": "money",
+        "direction": "cost",
+        "low": 40,
+        "high": 90,
+        "unit": "/mo",
+        "text": "Your federal loan payment could rise $40–90/mo once repayment starts.",
+        "evidence": "Placeholder: Borrowers on the affected plans could see payments rise by $40 to $90 a month."
+      }
+    ],
+    "otherwise": "This only affects people with federal student loans."
+  },
+  {
+    "id": "wa-rent-cap-2026",
+    "topicKey": "wa-rent-increase-cap",
+    "headline": "Placeholder: Washington caps annual rent increases",
+    "summary": "Placeholder story. A new state law limits how much landlords can raise rent each year.",
+    "source": { "name": "Placeholder News", "url": "https://example.com/wa-rent-cap", "date": "2026-10-21" },
+    "category": "rent",
+    "stage": "in_effect",
+    "needs": ["housing"],
+    "receipts": [
+      {
+        "when": { "state": "WA", "housing": "renting" },
+        "type": "rule",
+        "text": "Your landlord can't raise your rent more than the yearly cap.",
+        "evidence": "Placeholder: Landlords may not raise rent above the annual cap set by the state."
+      }
+    ],
+    "otherwise": "This only affects renters in Washington."
+  },
+  {
+    "id": "wa-min-wage-proposal-2026",
+    "topicKey": "wa-min-wage-increase",
+    "headline": "Placeholder: Lawmakers propose raising the state minimum wage",
+    "summary": "Placeholder story. A bill would raise the minimum wage next year; it hasn't been voted on yet.",
+    "source": { "name": "Placeholder News", "url": "https://example.com/wa-min-wage", "date": "2026-10-28" },
+    "category": "work",
+    "stage": "proposed",
+    "needs": ["work"],
+    "receipts": [
+      {
+        "when": { "state": "WA", "work": ["part-time", "full-time"] },
+        "type": "rep",
+        "text": "Your state representative will vote on this. Tell them what you think.",
+        "evidence": "Placeholder: The bill is expected to get a vote in the state House early next year."
+      }
+    ],
+    "otherwise": "This only affects people working in Washington."
+  },
+  {
+    "id": "transit-reduced-fare-2026",
+    "topicKey": "transit-reduced-fare-enrollment",
+    "headline": "Placeholder: Reduced transit fare enrollment closes soon",
+    "summary": "Placeholder story. Riders have until December to sign up for a reduced-fare transit pass.",
+    "source": { "name": "Placeholder News", "url": "https://example.com/reduced-fare", "date": "2026-11-05" },
+    "category": "transit",
+    "stage": "in_effect",
+    "needs": ["transport"],
+    "receipts": [
+      {
+        "when": { "state": "WA", "transport": "transit" },
+        "type": "deadline",
+        "dueDate": "2026-12-01",
+        "text": "Sign up for the reduced fare by Dec 1.",
+        "evidence": "Placeholder: Enrollment for the reduced-fare pass closes on December 1."
+      }
+    ],
+    "otherwise": "This only affects transit riders in Washington."
+  }
+]
