@@ -15,7 +15,7 @@
     "needs": ["loans"],
     "receipts": [
       {
-        "when": { "loans": "federal" },
+        "when": { "loans": ["federal", "both"] },
         "type": "rule",
         "text": "You may qualify to have your federal loans erased if your college closed suddenly.",
         "evidence": "Under the change, any borrower who was enrolled as of May 6, 2015, would qualify for a loan discharge and refund of any past payments."

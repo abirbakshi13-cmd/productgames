@@ -1,174 +1,261 @@
+// Ported from twin-design/screens/2-onboarding-question.html, with the questions
+// from twin-design/screens/0-app-flow.html plus a 7th ("loans") in the same style.
 import { useState } from 'react'
+import { Icon } from '../design/twin-engine.js'
 import { useProfile } from '../lib/useProfile.js'
-import Pills from '../components/Pills.jsx'
-import QuestionCard, {
-  AGE_OPTIONS,
-  STUDENT_OPTIONS,
-  RESIDENCY_OPTIONS,
-  LOAN_OPTIONS,
-  HOUSING_OPTIONS,
-  RENT_OPTIONS,
-  WORK_OPTIONS,
-  WAGE_OPTIONS,
-  HOURS_OPTIONS,
-  TRANSPORT_OPTIONS,
-  WHY,
-  studentPatch,
-  housingPatch,
-  workPatch,
-  isValidZip,
-  LockIcon,
-} from '../components/QuestionCard.jsx'
-import './Onboarding.css'
+import { saveProfile } from '../lib/profileStore.js'
 
-const STEPS = 3
-const OPTIONAL_TOPICS = ['loans', 'housing', 'work', 'transport']
+const QUESTIONS = [
+  { id: 'live', title: 'Where do you live?', helper: 'So you only hear about what is near you.', multi: false, options: [
+    { id: 'caphill', label: 'Capitol Hill', icon: 'pin', topic: 'home', adds: ['Capitol Hill'] },
+    { id: 'beacon', label: 'Beacon Hill', icon: 'pin', topic: 'home', adds: ['Beacon Hill'] },
+    { id: 'ballard', label: 'Ballard', icon: 'pin', topic: 'home', adds: ['Ballard'] },
+    { id: 'elsewhere', label: 'Somewhere else in Seattle', icon: 'pin', topic: 'home', adds: ['Seattle'] }] },
+  { id: 'role', title: 'What does your week look like?', helper: 'This changes which work, money and school news reaches you.', multi: true, options: [
+    { id: 'fulltime', label: 'Working full time', icon: 'briefcase', topic: 'campus', adds: ['Full-time worker'] },
+    { id: 'parttime', label: 'Part time, shifts or gigs', icon: 'clock', topic: 'money', adds: ['Hourly worker'] },
+    { id: 'study', label: 'Studying', icon: 'book', topic: 'campus', adds: ['Student'] },
+    { id: 'figuring', label: 'Figuring it out', icon: 'route', topic: 'campus', adds: ['Job hunting'] }] },
+  { id: 'move', title: 'How do you get around?', helper: 'We only show transit news if it touches your route.', multi: true, options: [
+    { id: 'transit', label: 'Light rail or bus', icon: 'train', topic: 'move', adds: ['Transit rider'] },
+    { id: 'bike', label: 'Bike or scooter', icon: 'bike', topic: 'health', adds: ['Bike commuter'] },
+    { id: 'car', label: 'Car', icon: 'car', topic: 'money', adds: ['Driver', 'Gas prices'] },
+    { id: 'walk', label: 'Mostly walk', icon: 'walk', topic: 'campus', adds: ['Walker'] }] },
+  { id: 'home', title: 'What is home right now?', helper: 'Rent, utilities and housing news depend on it.', multi: false, options: [
+    { id: 'rent', label: 'Renting', icon: 'house', topic: 'home', adds: ['Renter'] },
+    { id: 'shared', label: 'Shared house or dorm', icon: 'dorm', topic: 'home', adds: ['Shared housing'] },
+    { id: 'family', label: 'Living with family', icon: 'family', topic: 'home', adds: ['Lives with family'] },
+    { id: 'own', label: 'I own my place', icon: 'house', topic: 'home', adds: ['Homeowner'] }] },
+  { id: 'loans', title: 'Any student loans?', helper: 'Loan rules change often. This stays on your phone.', multi: false, options: [
+    { id: 'federal', label: 'Federal', icon: 'coin', topic: 'money', adds: ['Federal loans'] },
+    { id: 'private', label: 'Private', icon: 'coin', topic: 'money', adds: ['Private loans'] },
+    { id: 'both', label: 'Both', icon: 'coin', topic: 'money', adds: ['Federal + private loans'] },
+    { id: 'none', label: 'None', icon: 'coin', topic: 'money', adds: [] }] },
+  { id: 'earn', title: 'Roughly what do you earn a month?', helper: 'Optional. Ranges only, and it never leaves your phone.', multi: false, options: [
+    { id: 'low', label: 'Under $1,000', icon: 'coin', topic: 'money', adds: ['Income under $1k'] },
+    { id: 'mid', label: '$1,000 to $2,500', icon: 'coin', topic: 'money', adds: ['Income $1k to $2.5k'] },
+    { id: 'high', label: 'More than $2,500', icon: 'coin', topic: 'money', adds: ['Income $2.5k+'] },
+    { id: 'none', label: 'Rather not say', icon: 'skip', topic: 'money', adds: [] }] },
+  { id: 'care', title: 'What do you care about?', helper: 'Pick as many as you like. Change it anytime.', multi: true, options: [
+    { id: 'money', label: 'Money', icon: 'coin', topic: 'money', adds: ['Cares: money'] },
+    { id: 'move', label: 'Getting around', icon: 'train', topic: 'move', adds: ['Cares: getting around'] },
+    { id: 'home', label: 'Home', icon: 'house', topic: 'home', adds: ['Cares: home'] },
+    { id: 'health', label: 'Health', icon: 'heart', topic: 'health', adds: ['Cares: health'] },
+    { id: 'rights', label: 'Rights and power', icon: 'ballot', topic: 'rights', adds: ['Cares: rights'] },
+    { id: 'campus', label: 'Work and school', icon: 'briefcase', topic: 'campus', adds: ['Cares: work'] }] },
+]
 
-export default function Onboarding({ onDone }) {
-  const [profile, save] = useProfile()
-  const p = profile || {}
-  const [step, setStep] = useState(0)
-  const [zip, setZip] = useState(p.zip || '')
-  const [zipTouched, setZipTouched] = useState(false)
+const PLACES = {
+  caphill: { zip: '98102', neighborhood: 'Capitol Hill' },
+  beacon: { zip: '98144', neighborhood: 'Beacon Hill' },
+  ballard: { zip: '98107', neighborhood: 'Ballard' },
+  elsewhere: { zip: '98101', neighborhood: 'Seattle' },
+}
+const HOME_TO_HOUSING = { rent: 'renting', shared: 'dorm', family: 'family', own: 'own' }
+const EARN_TO_INCOME = { low: 'under-1k', mid: '1k-2.5k', high: '2.5k+', none: null }
+const MOVE_TO_TRANSPORT = { car: 'car', transit: 'transit', bike: 'bike-walk', walk: 'bike-walk' }
+const LOANS = ['federal', 'private', 'both', 'none']
 
-  const isStudent = p.student && p.student !== 'none'
-  const basicsDone =
-    isValidZip(zip) && isValidZip(p.zip) && !!p.ageRange && !!p.student && (!isStudent || !!p.residency)
+const invert = (obj) =>
+  Object.fromEntries(Object.entries(obj).filter(([, v]) => v != null).map(([k, v]) => [v, k]))
 
-  function onZipChange(e) {
-    const next = e.target.value.replace(/\D/g, '').slice(0, 5)
-    setZip(next)
-    // Only persist once it's a full, valid ZIP; saveProfile derives `state`.
-    if (isValidZip(next)) save({ zip: next })
+// Profile fields for one question's answer (null = skipped / nothing picked).
+function patchFor(qid, answer) {
+  const list = Array.isArray(answer) && answer.length ? answer : null
+  switch (qid) {
+    case 'live':
+      return PLACES[answer] || { zip: null, neighborhood: null }
+    case 'role':
+      if (!list) return { roles: null, work: null, student: null }
+      return {
+        roles: list,
+        work: list.includes('fulltime')
+          ? 'full-time'
+          : list.includes('parttime')
+            ? 'part-time'
+            : list.includes('figuring')
+              ? 'none'
+              : null,
+        student: list.includes('study') ? '4yr' : 'none',
+      }
+    case 'move':
+      return { transport: list ? [...new Set(list.map((m) => MOVE_TO_TRANSPORT[m]))] : null }
+    case 'home':
+      return { housing: HOME_TO_HOUSING[answer] || null }
+    case 'earn':
+      return { incomeRange: EARN_TO_INCOME[answer] ?? null }
+    case 'care':
+      return { cares: list }
+    case 'loans':
+      return { loans: LOANS.includes(answer) ? answer : null }
+    default:
+      return {}
   }
-
-  function finish() {
-    // Anything left unanswered on the optional step counts as skipped (null).
-    const skipped = {}
-    for (const key of OPTIONAL_TOPICS) {
-      if (p[key] === undefined) Object.assign(skipped, skipPatch(key))
-    }
-    if (Object.keys(skipped).length) save(skipped)
-    onDone?.()
-  }
-
-  const working = p.work === 'part-time' || p.work === 'full-time'
-
-  return (
-    <div className="onb">
-      <div className="onb-dots" aria-label={`Step ${step + 1} of ${STEPS}`}>
-        {Array.from({ length: STEPS }, (_, i) => (
-          <span key={i} className={i === step ? 'onb-dot onb-dot--on' : i < step ? 'onb-dot onb-dot--done' : 'onb-dot'} />
-        ))}
-      </div>
-
-      {step === 0 && (
-        <div className="onb-welcome">
-          <div className="onb-welcome-main">
-            <h1 className="onb-brand">Receipts</h1>
-            <p className="onb-tagline">See what the news means for you</p>
-          </div>
-          <div className="onb-privacy">
-            <span className="onb-privacy-icon"><LockIcon size={22} /></span>
-            <p>Your Receipts never leave your phone. No account, no tracking.</p>
-          </div>
-          <button type="button" className="onb-primary" onClick={() => setStep(1)}>
-            Start
-          </button>
-        </div>
-      )}
-
-      {step === 1 && (
-        <div className="onb-step">
-          <h2 className="onb-title">The basics</h2>
-          <p className="onb-sub">We use these to match news to where you live and your stage of life.</p>
-
-          <label className="onb-label" htmlFor="onb-zip">ZIP code</label>
-          <input
-            id="onb-zip"
-            className={zipTouched && zip && !isValidZip(zip) ? 'onb-input onb-input--bad' : 'onb-input'}
-            inputMode="numeric"
-            autoComplete="postal-code"
-            placeholder="98105"
-            value={zip}
-            onChange={onZipChange}
-            onBlur={() => setZipTouched(true)}
-          />
-          {zipTouched && zip && !isValidZip(zip) && (
-            <p className="onb-error">Enter a 5-digit ZIP code.</p>
-          )}
-
-          <p className="onb-label">Age</p>
-          <Pills label="Age" options={AGE_OPTIONS} value={p.ageRange} onChange={(v) => save({ ageRange: v })} />
-
-          <p className="onb-label">Student status</p>
-          <Pills label="Student status" options={STUDENT_OPTIONS} value={p.student} onChange={(v) => save(studentPatch(v))} />
-
-          {isStudent && (
-            <>
-              <p className="onb-label">Tuition residency</p>
-              <Pills label="Tuition residency" options={RESIDENCY_OPTIONS} value={p.residency} onChange={(v) => save({ residency: v })} />
-            </>
-          )}
-
-          <div className="onb-nav">
-            <button type="button" className="onb-back" onClick={() => setStep(0)}>Back</button>
-            <button type="button" className="onb-primary" disabled={!basicsDone} onClick={() => setStep(2)}>
-              Continue
-            </button>
-          </div>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="onb-step">
-          <h2 className="onb-title">A few optional questions</h2>
-          <p className="onb-sub">Answer what you like. The more you share, the more exact your Receipts.</p>
-
-          <div className="onb-cards">
-            <QuestionCard title="Student loans" why={WHY.loans} skipped={p.loans === null} onSkip={() => save(skipPatch('loans'))}>
-              <Pills label="Student loans" options={LOAN_OPTIONS} value={p.loans} onChange={(v) => save({ loans: v })} />
-            </QuestionCard>
-
-            <QuestionCard title="Housing" why={WHY.housing} skipped={p.housing === null} onSkip={() => save(skipPatch('housing'))}>
-              <Pills label="Housing" options={HOUSING_OPTIONS} value={p.housing} onChange={(v) => save(housingPatch(v))} />
-              {p.housing === 'renting' && (
-                <>
-                  <p className="qcard-sub">Monthly rent (your share)</p>
-                  <Pills label="Monthly rent" options={RENT_OPTIONS} value={p.rentRange} onChange={(v) => save({ rentRange: v })} />
-                </>
-              )}
-            </QuestionCard>
-
-            <QuestionCard title="Work" why={WHY.work} skipped={p.work === null} onSkip={() => save(skipPatch('work'))}>
-              <Pills label="Work" options={WORK_OPTIONS} value={p.work} onChange={(v) => save(workPatch(v))} />
-              {working && (
-                <>
-                  <p className="qcard-sub">Hourly wage</p>
-                  <Pills label="Hourly wage" options={WAGE_OPTIONS} value={p.wageRange} onChange={(v) => save({ wageRange: v })} />
-                  <p className="qcard-sub">Hours per week</p>
-                  <Pills label="Hours per week" options={HOURS_OPTIONS} value={p.hoursPerWeek} onChange={(v) => save({ hoursPerWeek: v })} />
-                </>
-              )}
-            </QuestionCard>
-
-            <QuestionCard title="Getting around" why={WHY.transport} skipped={p.transport === null} onSkip={() => save(skipPatch('transport'))}>
-              <Pills label="Getting around" options={TRANSPORT_OPTIONS} value={p.transport} onChange={(v) => save({ transport: v })} />
-            </QuestionCard>
-          </div>
-
-          <div className="onb-nav">
-            <button type="button" className="onb-back" onClick={() => setStep(1)}>Back</button>
-            <button type="button" className="onb-primary" onClick={finish}>Show my news</button>
-          </div>
-        </div>
-      )}
-    </div>
-  )
 }
 
-function skipPatch(key) {
-  if (key === 'housing') return housingPatch(null)
-  if (key === 'work') return workPatch(null)
-  return { [key]: null }
+// Reverse mapping: existing profile -> each question's selection (for "Edit answers").
+function answersFromProfile(profile) {
+  const p = profile || {}
+  const a = {}
+
+  const byLabel = Object.keys(PLACES).find((k) => PLACES[k].neighborhood === p.neighborhood)
+  const byZip = Object.keys(PLACES).find((k) => PLACES[k].zip === p.zip)
+  if (byLabel || byZip) a.live = byLabel || byZip
+
+  if (Array.isArray(p.roles)) {
+    a.role = p.roles.slice()
+  } else {
+    const roles = []
+    if (p.work === 'full-time') roles.push('fulltime')
+    if (p.work === 'part-time') roles.push('parttime')
+    if (p.student && p.student !== 'none') roles.push('study')
+    if (p.work === 'none') roles.push('figuring')
+    if (roles.length) a.role = roles
+  }
+
+  const transport = p.transport == null ? [] : Array.isArray(p.transport) ? p.transport : [p.transport]
+  const move = []
+  if (transport.includes('transit')) move.push('transit')
+  if (transport.includes('bike-walk')) move.push('bike')
+  if (transport.includes('car')) move.push('car')
+  if (move.length) a.move = move
+
+  const home = invert(HOME_TO_HOUSING)[p.housing]
+  if (home) a.home = home
+
+  const earn = invert(EARN_TO_INCOME)[p.incomeRange]
+  if (earn) a.earn = earn
+
+  if (Array.isArray(p.cares) && p.cares.length) a.care = p.cares.slice()
+
+  if (LOANS.includes(p.loans)) a.loans = p.loans
+
+  return a
+}
+
+export default function Onboarding({ onDone = () => {}, onBack = () => {}, initialStep = 0 }) {
+  const [profile] = useProfile()
+  const [step, setStep] = useState(() => Math.max(0, Math.min(initialStep, QUESTIONS.length - 1)))
+  const [answers, setAnswers] = useState(() => answersFromProfile(profile))
+
+  const q = QUESTIONS[step]
+  const last = step === QUESTIONS.length - 1
+
+  const isPicked = (id) => (q.multi ? (answers[q.id] || []).includes(id) : answers[q.id] === id)
+
+  function pick(id) {
+    let value
+    if (q.multi) {
+      const cur = (answers[q.id] || []).slice()
+      const i = cur.indexOf(id)
+      if (i >= 0) cur.splice(i, 1)
+      else cur.push(id)
+      value = cur
+    } else {
+      value = id
+    }
+    setAnswers({ ...answers, [q.id]: value })
+    saveProfile(patchFor(q.id, value))
+  }
+
+  function advance() {
+    if (last) onDone()
+    else setStep(step + 1)
+  }
+
+  function next() {
+    saveProfile(patchFor(q.id, answers[q.id]))
+    advance()
+  }
+
+  function skip() {
+    const rest = { ...answers }
+    delete rest[q.id]
+    setAnswers(rest)
+    saveProfile(patchFor(q.id, null))
+    advance()
+  }
+
+  function back() {
+    if (step > 0) setStep(step - 1)
+    else onBack()
+  }
+
+  return (
+    <div
+      style={{
+        width: 390,
+        height: 844,
+        boxSizing: 'border-box',
+        padding: '20px 20px 28px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 14,
+        background: 'var(--paper)',
+        color: 'var(--ink)',
+        fontFamily: 'var(--font-sans)',
+        overflow: 'hidden',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <button className="tw-iconbtn" type="button" aria-label="Back" onClick={back}>
+          <Icon name="back" size={20} />
+        </button>
+        <span className="tw-meta">{`Step ${step + 1} of ${QUESTIONS.length}`}</span>
+        <button className="tw-btn tw-btn--ghost" type="button" onClick={skip} style={{ padding: '0 6px' }}>
+          Skip
+        </button>
+      </div>
+      <div className="tw-progress">
+        {QUESTIONS.map((x, i) => (
+          <span key={x.id} className={i < step ? 'is-done' : i === step ? 'is-now' : ''}></span>
+        ))}
+      </div>
+      <h1 className="display-l" style={{ margin: '10px 0 0' }}>
+        {q.title}
+      </h1>
+      <p className="body" style={{ margin: 0, color: 'var(--ink-soft)' }}>
+        {q.helper}
+      </p>
+      <span className="tw-meta">{q.multi ? 'Pick all that apply' : 'Pick one'}</span>
+      <div
+        style={{
+          flex: 1,
+          minHeight: 0,
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 12,
+          padding: 3,
+        }}
+      >
+        {q.options.map((o) => (
+          <button
+            key={`${q.id}-${o.id}`}
+            className="tw-option"
+            type="button"
+            aria-pressed={isPicked(o.id) ? 'true' : 'false'}
+            onClick={() => pick(o.id)}
+          >
+            <span className="tw-option__icon" data-topic={o.topic}>
+              <Icon name={o.icon} size={22} />
+            </span>
+            <span className="tw-option__text">
+              {o.label}
+              <small>{o.adds.length ? 'Adds: ' + o.adds.join(', ') : 'Adds nothing'}</small>
+            </span>
+            <span className="tw-option__check">
+              <Icon name="check" size={14} weight={3} />
+            </span>
+          </button>
+        ))}
+      </div>
+      <button className="tw-btn tw-btn--block" type="button" onClick={next}>
+        {last ? 'See my UUIs' : 'Continue'}{' '}
+        <span className="tw-dot">
+          <Icon name="arrow" size={16} />
+        </span>
+      </button>
+    </div>
+  )
 }

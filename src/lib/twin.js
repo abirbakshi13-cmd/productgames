@@ -109,6 +109,47 @@ export function moodFor(receipt) {
   return 'curious'
 }
 
+// ---- bubble: a short first-person take on the receipt text (< 40 chars),
+// falling back to `fallback` (the Twin's mood copy) when the rewrite reads awkwardly.
+const BUBBLE_MAX = 39
+const MODALS = new Set(["can't", 'will', 'would', 'may', 'could', 'must', 'should'])
+const DANGLING = new Set([
+  'a', 'an', 'the', 'to', 'of', 'in', 'on', 'for', 'and', 'or', 'but', 'so', 'if', 'by', 'at', 'with',
+  'from', 'than', 'more', 'my', 'your', "can't", 'will', 'would', 'is', 'are', 'be', 'up', 'during',
+  'looks', 'set',
+])
+
+export function bubbleFor(text, fallback) {
+  if (!text) return fallback
+  // Drop a leading "If …," condition: the user is already known to be affected.
+  let s = String(text).trim().replace(/^If [^,]+,\s*/i, '')
+  s = (s.charAt(0).toUpperCase() + s.slice(1))
+    .replace(/\bcannot\b/gi, "can't")
+    .replace(/\bYour\b/g, 'My')
+    .replace(/\byour\b/g, 'my')
+    .replace(/^You\b/, 'I')
+    .replace(/\byou\b/g, 'me')
+    .replace(/\bYou\b/g, 'I')
+    .replace(/[.!]+$/, '')
+
+  if (s.length > BUBBLE_MAX) {
+    const kept = []
+    for (const word of s.split(/\s+/)) {
+      if ([...kept, word].join(' ').length > BUBBLE_MAX - 1) break
+      kept.push(word)
+    }
+    while (kept.length && DANGLING.has(kept[kept.length - 1].replace(/[,;:]$/, '').toLowerCase())) kept.pop()
+    const prev = (kept[kept.length - 2] || '').toLowerCase()
+    if (kept.length < 4 || MODALS.has(prev)) return fallback
+    s = `${kept.join(' ').replace(/[,;:]$/, '')}…`
+  } else if (!/[?]$/.test(s)) {
+    s += '.'
+  }
+
+  if (!/\b(I|my|me|My)\b/.test(s)) return fallback
+  return s
+}
+
 // ---- UUIs: chips describing the user, labels from twin-design/screens/0-app-flow.html.
 // Each chip is { label, topic, key, value }; key/value say which profile answer
 // it stands for, so matchedUuis can line chips up with a receipt's `when`.

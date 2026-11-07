@@ -1,134 +1,197 @@
-import { useEffect, useMemo, useState } from 'react';
-import { getProfile, computeReceipt } from '../shared/api.js';
-import { feedStories } from '../stories.js';
-import ReceiptChip from '../components/ReceiptChip.jsx';
-import './Feed.css';
+// Ported from twin-design/screens/6-your-news-feed.html
+import { useMemo, useState, useSyncExternalStore } from 'react'
+import stories from '../data/stories.json'
+import { Icon } from '../design/twin-engine.js'
+import { computeReceipt } from '../lib/receipt.js'
+import { useProfile } from '../lib/useProfile.js'
+import { getLook, subscribeLook, topicFor, topicLabel } from '../lib/twin.js'
+import NewsCard from '../components/NewsCard.jsx'
+import TabBar from '../components/TabBar.jsx'
 
-// Parse "YYYY-MM-DD" as a LOCAL date so relative-day math never shifts a day.
-function parseLocalDate(s) {
-  const [y, m, d] = s.split('-').map(Number);
-  return new Date(y, m - 1, d);
+// The design's chip list, plus "Work & school" so work stories can be filtered too.
+const FILTERS = [
+  { id: 'all', label: 'All', topic: '' },
+  ...['move', 'money', 'home', 'health', 'rights', 'campus'].map((t) => ({ id: t, label: topicLabel(t), topic: t })),
+]
+
+const STAGE_ORDER = { in_effect: 0, passed: 1, proposed: 2 }
+
+function byEffectThenNewest(a, b) {
+  const s = (STAGE_ORDER[a.story.stage] ?? 3) - (STAGE_ORDER[b.story.stage] ?? 3)
+  if (s !== 0) return s
+  return String(b.story.source?.date || '').localeCompare(String(a.story.source?.date || ''))
 }
 
-function startOfDay(d) {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+function todayLabel() {
+  return new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
 }
 
-function relativeDate(dateStr) {
-  const date = parseLocalDate(dateStr);
-  const days = Math.round((startOfDay(new Date()) - startOfDay(date)) / 86400000);
-  if (days === 0) return 'Today';
-  if (days === 1) return 'Yesterday';
-  if (days > 1 && days < 7) return `${days} days ago`;
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
+export default function Feed({ onOpenStory = () => {}, onNav = () => {} }) {
+  const [profile] = useProfile()
+  const look = useSyncExternalStore(subscribeLook, getLook, getLook)
+  const [filter, setFilter] = useState('all')
+  const [added, setAdded] = useState(false)
+  const [showOutside, setShowOutside] = useState(false)
 
-function firstSentence(text) {
-  if (!text) return '';
-  // A sentence ends at .!? followed by whitespace + a capital, or by the end of the string.
-  // Without the lookahead, "the U.S. and Iran" and "$22.14 an hour" truncate mid-sentence.
-  const m = text.match(/^.*?[.!?](?=\s+[A-Z$"'(]|\s*$)/s);
-  return (m ? m[0] : text).trim();
-}
-
-function ProfileIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-    </svg>
-  );
-}
-
-function LockIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-      <rect x="4" y="10" width="16" height="10" rx="2" />
-      <path d="M7.5 10V7.5a4.5 4.5 0 0 1 9 0V10" />
-    </svg>
-  );
-}
-
-/**
- * Props: { profile, onOpenStory, onOpenProfile }
- * `profile` is optional; falls back to getProfile() and re-reads it on
- * "profilechange" / "storage" so chips update instantly when the profile
- * changes elsewhere (e.g. Profile screen, or the dev panel in previewB).
- */
-export default function Feed({ profile: profileProp, onOpenStory, onOpenProfile }) {
-  const [profile, setProfile] = useState(() => profileProp || getProfile());
-
-  useEffect(() => {
-    if (profileProp) {
-      setProfile(profileProp);
-      return undefined;
+  const { mine, outside } = useMemo(() => {
+    const items = stories.map((story) => {
+      let receipt
+      try {
+        receipt = computeReceipt(profile, story)
+      } catch {
+        receipt = { status: 'needs_info' }
+      }
+      return { story, receipt }
+    })
+    items.sort(byEffectThenNewest)
+    return {
+      mine: items.filter((i) => i.receipt.status !== 'not_affected'),
+      outside: items.filter((i) => i.receipt.status === 'not_affected'),
     }
-    const refresh = () => setProfile(getProfile());
-    refresh();
-    window.addEventListener('profilechange', refresh);
-    window.addEventListener('storage', refresh);
-    return () => {
-      window.removeEventListener('profilechange', refresh);
-      window.removeEventListener('storage', refresh);
-    };
-  }, [profileProp]);
+  }, [profile])
 
-  const stories = useMemo(() => feedStories(), []);
-
-  const items = useMemo(
-    () =>
-      stories.map((story) => {
-        let receipt;
-        try {
-          receipt = computeReceipt(profile, story);
-        } catch (err) {
-          console.warn('computeReceipt failed for story', story?.id, err);
-          receipt = { status: 'needs_info' };
-        }
-        return { story, receipt };
-      }),
-    [stories, profile],
-  );
+  const cards = mine.filter((i) => filter === 'all' || topicFor(i.story.category) === filter)
+  const a = mine.filter((i) => i.receipt.status === 'affected').length
+  const b = outside.length
 
   return (
-    <div className="feed">
-      <header className="feed-header">
-        <h1 className="feed-title">Receipts</h1>
-        <button
-          type="button"
-          className="feed-profile-btn"
-          aria-label="Your profile"
-          onClick={() => onOpenProfile?.()}
-        >
-          <ProfileIcon />
-        </button>
-      </header>
-      <p className="feed-privacy">
-        <LockIcon />
-        Calculated on your phone. Your answers never leave it.
-      </p>
-      <div className="feed-body">
-        <h2 className="feed-section">This week</h2>
-        {items.length === 0 ? (
-          <p className="feed-empty">No stories yet. Run npm run prep.</p>
-        ) : (
-          <ul className="feed-list">
-            {items.map(({ story, receipt }) => (
-              <li key={story.id}>
-                <button type="button" className="feed-card" onClick={() => onOpenStory?.(story.id)}>
-                  <div className="feed-card-meta">
-                    {story.source?.name}
-                    {story.source?.date ? ` · ${relativeDate(story.source.date)}` : ''}
-                  </div>
-                  <div className="feed-card-headline">{story.headline}</div>
-                  <div className="feed-card-summary">{firstSentence(story.summary)}</div>
-                  <ReceiptChip receipt={receipt} />
-                </button>
-              </li>
-            ))}
-          </ul>
+    <div
+      style={{
+        width: 390,
+        height: 844,
+        display: 'flex',
+        flexDirection: 'column',
+        background: 'var(--paper)',
+        color: 'var(--ink)',
+        fontFamily: 'var(--font-sans)',
+        overflow: 'hidden',
+      }}
+    >
+      <div style={{ flex: 'none', boxSizing: 'border-box', padding: '18px 20px 12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <span className="tw-meta">{todayLabel()}</span>
+        <h1 className="display-l" style={{ margin: 0 }}>Your news</h1>
+        <p className="body" style={{ margin: 0, color: 'var(--ink-soft)' }}>
+          {a} {a === 1 ? 'story touches' : 'stories touch'} your life. We skipped {b} that {b === 1 ? "doesn't" : "don't"}.
+        </p>
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '4px 2px 2px', margin: '0 -2px' }}>
+          {FILTERS.map((f) => (
+            <button
+              key={f.id}
+              className="tw-chip"
+              type="button"
+              data-topic={f.topic}
+              aria-pressed={f.id === filter ? 'true' : 'false'}
+              onClick={() => setFilter(f.id)}
+              style={{
+                border: 0,
+                cursor: 'pointer',
+                flex: 'none',
+                boxShadow: f.id === filter ? 'inset 0 0 0 2px var(--ink)' : 'none',
+              }}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div
+        style={{
+          flex: 1,
+          minHeight: 0,
+          overflowY: 'auto',
+          boxSizing: 'border-box',
+          padding: '4px 20px 20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 12,
+        }}
+      >
+        {cards.map(({ story, receipt }, j) => (
+          <NewsCard key={story.id} story={story} receipt={receipt} look={look} lead={j === 0} onOpen={onOpenStory} />
+        ))}
+        {cards.length === 0 && (
+          <p className="body" style={{ margin: 0, color: 'var(--ink-soft)' }}>
+            Nothing in this topic touches you right now.
+          </p>
+        )}
+        {b > 0 && (
+          <section
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
+              padding: 18,
+              borderRadius: 'var(--radius-lg)',
+              border: '2px dashed var(--line)',
+              background: 'var(--surface)',
+            }}
+          >
+            <span className="tw-meta">Outside your bubble</span>
+            <h3 className="headline" style={{ margin: 0 }}>
+              {b} big {b === 1 ? "story doesn't" : "stories don't"} touch your day, but they matter.
+            </h3>
+            <p className="body" style={{ margin: 0, color: 'var(--ink-soft)' }}>
+              Seeing past your own feed keeps the algorithm honest. We add one to your brief each week.
+            </p>
+            <button
+              className="tw-link"
+              type="button"
+              aria-expanded={showOutside}
+              onClick={() => setShowOutside((v) => !v)}
+              style={{ alignSelf: 'flex-start' }}
+            >
+              {showOutside ? 'Hide them' : `See ${b === 1 ? 'it' : `all ${b}`}`} <Icon name="arrow" size={14} />
+            </button>
+            {showOutside && (
+              <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column' }}>
+                {outside.map(({ story }) => (
+                  <li key={story.id}>
+                    <button
+                      type="button"
+                      onClick={() => onOpenStory(story.id)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        width: '100%',
+                        padding: '10px 0',
+                        border: 0,
+                        borderTop: '1.5px solid var(--line)',
+                        background: 'none',
+                        color: 'var(--ink)',
+                        font: '600 15px/20px var(--font-sans)',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <span className="tw-chip" data-topic={topicFor(story.category)} style={{ flex: 'none' }}>
+                        {topicLabel(topicFor(story.category))}
+                      </span>
+                      <span style={{ flex: 1 }}>{story.headline}</span>
+                      <Icon name="arrow" size={18} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {!added && (
+              <button className="tw-btn tw-btn--secondary" type="button" onClick={() => setAdded(true)} style={{ alignSelf: 'flex-start' }}>
+                Add to tomorrow's brief{' '}
+                <span className="tw-dot">
+                  <Icon name="arrow" size={16} />
+                </span>
+              </button>
+            )}
+            {added && (
+              <span className="tw-meta" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--ink)' }}>
+                <Icon name="check" size={16} />
+                Added to tomorrow's brief
+              </span>
+            )}
+          </section>
         )}
       </div>
+      <TabBar active="feed" onNav={onNav} />
     </div>
-  );
+  )
 }

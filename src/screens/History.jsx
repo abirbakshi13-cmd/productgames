@@ -13,7 +13,8 @@ import { getHistory, subscribeHistory, markOpened } from '../lib/historyStore.js
 import { tiles, weeklySeries, byCategory, proposed } from '../lib/stats.js'
 import { formatReceipt } from '../lib/receipt.js'
 import stories from '../data/stories.json'
-import './History.css'
+import { Icon } from '../design/twin-engine.js'
+import { topicFor, topicLabel } from '../lib/twin.js'
 
 const EMPTY = []
 
@@ -134,20 +135,114 @@ function chipLabel(entry) {
   }
 }
 
-function chipTone(entry) {
-  if (entry.type === 'money') return entry.direction === 'saving' ? 'saving' : 'cost'
-  if (entry.type === 'deadline') return 'deadline'
-  return 'neutral'
-}
-
 function headlineFor(entry) {
   return HEADLINES[entry.storyId] || 'Untitled story'
 }
 
+// --- Styles (design tokens) ---
+
+// Chart colors: SVG attributes, so token values are written out (tokens.css --ink, --ink-muted, --line).
+const INK = '#1c1b1f'
+const INK_MUTED = '#5c5853'
+const INK_LINE = '#e3dbcd'
+
+const S = {
+  screen: {
+    width: 390,
+    height: 844,
+    display: 'flex',
+    flexDirection: 'column',
+    background: 'var(--paper)',
+    color: 'var(--ink)',
+    fontFamily: 'var(--font-sans)',
+    overflow: 'hidden',
+  },
+  scroll: {
+    flex: 1,
+    minHeight: 0,
+    overflowY: 'auto',
+    boxSizing: 'border-box',
+    padding: '18px 20px 28px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 20,
+  },
+  header: { display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 14 },
+  card: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+    padding: 14,
+    borderRadius: 'var(--radius-lg)',
+    background: 'var(--surface)',
+  },
+  section: { display: 'flex', flexDirection: 'column', gap: 10 },
+  h2: { margin: 0, color: 'var(--ink)' },
+  sub: { margin: 0, font: '500 13px/17px var(--font-sans)', color: 'var(--ink-muted)' },
+  tiles: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 },
+  tile: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 6,
+    padding: 14,
+    borderRadius: 'var(--radius-lg)',
+    background: 'var(--surface)',
+  },
+  tileLabel: { font: '500 13px/17px var(--font-sans)', color: 'var(--ink-muted)' },
+  list: { listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 },
+  catRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+    padding: '12px 14px',
+    borderRadius: 'var(--radius-md)',
+    background: 'var(--surface)',
+  },
+  row: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: 10,
+    padding: 14,
+    border: 0,
+    borderRadius: 'var(--radius-lg)',
+    background: 'var(--surface)',
+    color: 'var(--ink)',
+    textAlign: 'left',
+    cursor: 'pointer',
+    fontFamily: 'var(--font-sans)',
+  },
+  rowHeadline: { font: '600 15px/20px var(--font-sans)' },
+  rowMeta: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 },
+  receipt: { font: '600 13px/1 var(--font-sans)', color: 'var(--ink)' },
+}
+
+function Row({ entry, proposed: isProposed, onOpen }) {
+  const topic = topicFor(entry.category)
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={() => onOpen(entry.storyId)}
+        style={isProposed ? { ...S.row, background: 'transparent', boxShadow: 'inset 0 0 0 1.5px var(--line)' } : S.row}
+      >
+        <span style={S.rowHeadline}>{headlineFor(entry)}</span>
+        <span style={S.rowMeta}>
+          <span className="tw-chip" data-topic={topic}>{topicLabel(topic)}</span>
+          <span style={S.receipt}>{chipLabel(entry)}</span>
+          <span className="tw-meta">{shortDate(entry.date)}</span>
+        </span>
+      </button>
+    </li>
+  )
+}
+
 // --- Component ---
 
-export default function History({ onOpenStory }) {
-  const history = useSyncExternalStore(safeSubscribe, safeGetHistory)
+export default function History({ onOpenStory, onBack }) {
+  const history = useSyncExternalStore(safeSubscribe, safeGetHistory, safeGetHistory)
 
   const data = useMemo(() => {
     const t = safe(tiles, history, {})
@@ -186,16 +281,29 @@ export default function History({ onOpenStory }) {
     onOpenStory?.(id)
   }
 
+  const header = (
+    <div style={S.header}>
+      {onBack && (
+        <button className="tw-iconbtn" type="button" aria-label="Back" onClick={onBack}>
+          <Icon name="back" size={20} />
+        </button>
+      )}
+      <h1 className="display-l" style={{ margin: 0 }}>Your news, last 4 weeks</h1>
+    </div>
+  )
+
   if (history.length === 0) {
     return (
-      <div className="history">
-        <h1 className="history-title">Your news, last 4 weeks</h1>
-        <div className="history-empty">
-          <div className="history-empty-icon" aria-hidden="true">🧾</div>
-          <p className="history-empty-head">No receipts yet</p>
-          <p className="history-empty-body">
-            As stories that affect you show up in your feed, we'll tally what they add up to here.
-          </p>
+      <div style={S.screen}>
+        <div style={S.scroll}>
+          {header}
+          <div style={{ ...S.card, alignItems: 'flex-start', padding: 20 }}>
+            <span className="tw-meta">Nothing yet</span>
+            <span className="headline">No receipts yet</span>
+            <p className="body" style={{ margin: 0, color: 'var(--ink-muted)' }}>
+              As stories that affect you show up in your feed, we'll tally what they add up to here.
+            </p>
+          </div>
         </div>
       </div>
     )
@@ -205,149 +313,136 @@ export default function History({ onOpenStory }) {
   const net = formatNet(t.net?.low, t.net?.high)
 
   return (
-    <div className="history">
-      <h1 className="history-title">Your news, last 4 weeks</h1>
+    <div style={S.screen}>
+      <div style={S.scroll}>
+        {header}
 
-      <section className="history-tiles">
-        <div className="history-tile history-tile-net">
-          <span className="history-tile-label">Net monthly impact</span>
-          <span className={`history-tile-value history-tone-${net.tone}`}>{net.text}</span>
-          <span className="history-estimate">Estimate</span>
-        </div>
-        <div className="history-tile">
-          <span className="history-tile-label">Stories that affected you</span>
-          <span className="history-tile-value">{num(t.affectedCount)}</span>
-        </div>
-        <div className="history-tile">
-          <span className="history-tile-label">Rules that changed for you</span>
-          <span className="history-tile-value">{num(t.rulesCount)}</span>
-        </div>
-        <div className="history-tile">
-          <span className="history-tile-label">Deadlines coming up</span>
-          <span className="history-tile-value">{num(t.upcomingDeadlines)}</span>
-        </div>
-      </section>
-
-      {series.length > 0 && (
-        <section className="history-section">
-          <h2 className="history-h2">Running total</h2>
-          <p className="history-sub">Cumulative $/mo, range and midpoint</p>
-          <div className="history-chart">
-            <ResponsiveContainer width="100%" height={180}>
-              <ComposedChart data={series} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
-                <CartesianGrid stroke="#eef0f3" vertical={false} />
-                <XAxis
-                  dataKey="week"
-                  tick={{ fontSize: 11, fill: '#6b7280' }}
-                  tickLine={false}
-                  axisLine={{ stroke: '#e5e7eb' }}
-                />
-                <YAxis
-                  width={52}
-                  tick={{ fontSize: 11, fill: '#6b7280' }}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(v) => `${v < 0 ? '−' : ''}$${Math.abs(Math.round(v))}`}
-                />
-                <Tooltip
-                  formatter={(value, name) => {
-                    if (Array.isArray(value)) {
-                      return [formatNet(value[0], value[1]).text, 'Range']
-                    }
-                    return [`${value < 0 ? '−' : ''}$${Math.abs(Math.round(value))}/mo`, name === 'mid' ? 'Midpoint' : name]
-                  }}
-                  contentStyle={{ fontSize: 12, borderRadius: 8 }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="band"
-                  stroke="none"
-                  fill="#4f46e5"
-                  fillOpacity={0.15}
-                  isAnimationActive={false}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="mid"
-                  stroke="#4f46e5"
-                  strokeWidth={2}
-                  dot={{ r: 3, fill: '#4f46e5' }}
-                  isAnimationActive={false}
-                />
-              </ComposedChart>
-            </ResponsiveContainer>
+        <section style={S.tiles}>
+          <div style={{ ...S.tile, gridColumn: '1 / -1' }}>
+            <span className="tw-meta">Net monthly impact</span>
+            <span className="display-l">{net.text}</span>
+            <span className="tw-meta">Estimate</span>
+          </div>
+          <div style={S.tile}>
+            <span style={S.tileLabel}>Stories that affected you</span>
+            <span className="headline">{num(t.affectedCount)}</span>
+          </div>
+          <div style={S.tile}>
+            <span style={S.tileLabel}>Rules that changed for you</span>
+            <span className="headline">{num(t.rulesCount)}</span>
+          </div>
+          <div style={{ ...S.tile, gridColumn: '1 / -1' }}>
+            <span style={S.tileLabel}>Deadlines coming up</span>
+            <span className="headline">{num(t.upcomingDeadlines)}</span>
           </div>
         </section>
-      )}
 
-      {cats.length > 0 && (
-        <section className="history-section">
-          <h2 className="history-h2">By category</h2>
-          <ul className="history-list">
-            {cats.map((c) => {
-              const r = formatNet(c.low, c.high)
-              return (
-                <li key={c.category} className="history-cat-row">
-                  <span className="history-cat-name">
-                    {CATEGORY_LABELS[c.category] || c.category}
-                  </span>
-                  <span className={`history-cat-value history-tone-${r.tone}`}>{r.text}</span>
-                </li>
-              )
-            })}
-          </ul>
-        </section>
-      )}
-
-      {weeks.length > 0 && (
-        <section className="history-section">
-          <h2 className="history-h2">Week by week</h2>
-          {weeks.map((w) => (
-            <div key={w.key} className="history-week">
-              <h3 className="history-week-label">{w.label}</h3>
-              <ul className="history-list">
-                {w.entries.map((e, i) => (
-                  <li key={`${e.storyId}-${i}`}>
-                    <button type="button" className="history-row" onClick={() => open(e.storyId)}>
-                      <span className="history-row-headline">{headlineFor(e)}</span>
-                      <span className="history-row-meta">
-                        <span className={`history-chip history-chip-${chipTone(e)}`}>
-                          {chipLabel(e)}
-                        </span>
-                        <span className="history-row-date">{shortDate(e.date)}</span>
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
+        {series.length > 0 && (
+          <section style={S.section}>
+            <h2 className="tw-meta" style={S.h2}>Running total</h2>
+            <p style={S.sub}>Cumulative $/mo, range and midpoint</p>
+            <div style={{ ...S.card, padding: '14px 10px 8px 4px' }}>
+              <ResponsiveContainer width="100%" height={180}>
+                <ComposedChart data={series} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+                  <CartesianGrid stroke={INK_LINE} strokeDasharray="3 4" vertical={false} />
+                  <XAxis
+                    dataKey="week"
+                    tick={{ fontSize: 11, fill: INK_MUTED, fontFamily: 'var(--font-mono)' }}
+                    tickLine={false}
+                    axisLine={{ stroke: INK_LINE }}
+                  />
+                  <YAxis
+                    width={52}
+                    tick={{ fontSize: 11, fill: INK_MUTED, fontFamily: 'var(--font-mono)' }}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(v) => `${v < 0 ? '−' : ''}$${Math.abs(Math.round(v))}`}
+                  />
+                  <Tooltip
+                    formatter={(value, name) => {
+                      if (Array.isArray(value)) {
+                        return [formatNet(value[0], value[1]).text, 'Range']
+                      }
+                      return [`${value < 0 ? '−' : ''}$${Math.abs(Math.round(value))}/mo`, name === 'mid' ? 'Midpoint' : name]
+                    }}
+                    contentStyle={{
+                      fontSize: 12,
+                      fontFamily: 'var(--font-sans)',
+                      borderRadius: 'var(--radius-sm)',
+                      border: `1.5px solid ${INK_LINE}`,
+                      color: INK,
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="band"
+                    stroke="none"
+                    fill={INK_LINE}
+                    fillOpacity={1}
+                    isAnimationActive={false}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="mid"
+                    stroke={INK}
+                    strokeWidth={2.5}
+                    dot={{ r: 3.5, fill: INK, stroke: INK }}
+                    isAnimationActive={false}
+                  />
+                </ComposedChart>
+              </ResponsiveContainer>
             </div>
-          ))}
-        </section>
-      )}
+          </section>
+        )}
 
-      {prop.length > 0 && (
-        <section className="history-section">
-          <h2 className="history-h2">Could affect you</h2>
-          <p className="history-sub">Proposed, not law yet. Not counted in your totals.</p>
-          <ul className="history-list">
-            {prop.map((e, i) => (
-              <li key={`${e.storyId}-${i}`}>
-                <button
-                  type="button"
-                  className="history-row history-row-proposed"
-                  onClick={() => open(e.storyId)}
-                >
-                  <span className="history-row-headline">{headlineFor(e)}</span>
-                  <span className="history-row-meta">
-                    <span className="history-chip history-chip-proposed">{chipLabel(e)}</span>
-                    <span className="history-row-date">{shortDate(e.date)}</span>
-                  </span>
-                </button>
-              </li>
+        {cats.length > 0 && (
+          <section style={S.section}>
+            <h2 className="tw-meta" style={S.h2}>By category</h2>
+            <ul style={S.list}>
+              {cats.map((c) => {
+                const r = formatNet(c.low, c.high)
+                const topic = topicFor(c.category)
+                return (
+                  <li key={c.category} style={S.catRow}>
+                    <span className="tw-chip" data-topic={topic}>
+                      {CATEGORY_LABELS[c.category] || c.category}
+                    </span>
+                    <span className="label">{r.text}</span>
+                  </li>
+                )
+              })}
+            </ul>
+          </section>
+        )}
+
+        {weeks.length > 0 && (
+          <section style={S.section}>
+            <h2 className="tw-meta" style={S.h2}>Week by week</h2>
+            {weeks.map((w) => (
+              <div key={w.key} style={S.section}>
+                <h3 className="tw-meta" style={{ margin: '4px 0 0' }}>{w.label}</h3>
+                <ul style={S.list}>
+                  {w.entries.map((e, i) => (
+                    <Row key={`${e.storyId}-${i}`} entry={e} onOpen={open} />
+                  ))}
+                </ul>
+              </div>
             ))}
-          </ul>
-        </section>
-      )}
+          </section>
+        )}
+
+        {prop.length > 0 && (
+          <section style={S.section}>
+            <h2 className="tw-meta" style={S.h2}>Could affect you</h2>
+            <p style={S.sub}>Proposed, not law yet. Not counted in your totals.</p>
+            <ul style={S.list}>
+              {prop.map((e, i) => (
+                <Row key={`${e.storyId}-${i}`} entry={e} proposed onOpen={open} />
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
     </div>
   )
 }
