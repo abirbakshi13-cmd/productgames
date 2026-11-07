@@ -54,7 +54,7 @@ export default function Uuis({ onNext = () => {}, onBack = () => {} }) {
         Here&apos;s what makes you, you.
       </h1>
       <p className="body" style={{ margin: 0, color: 'var(--ink-soft)' }}>
-        These are your UUIs. They decide which news reaches you and how we say it. Change them anytime.
+        These decide which news reaches you and how we say it. Change them anytime.
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         {uuis.map((u, i) => (

@@ -274,7 +274,7 @@ export default function Onboarding({ onDone = () => {}, onBack = () => {}, initi
         ))}
       </div>
       <button className="tw-btn tw-btn--block" type="button" onClick={next}>
-        {last ? 'See my UUIs' : 'Continue'}{' '}
+        {last ? 'See my profile' : 'Continue'}{' '}
         <span className="tw-dot">
           <Icon name="arrow" size={16} />
         </span>
