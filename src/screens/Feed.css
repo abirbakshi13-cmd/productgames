@@ -1,0 +1,141 @@
+.feed {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--r-page);
+  color: var(--r-text);
+}
+
+.feed-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 8px;
+  background: var(--r-page);
+}
+
+.feed-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.feed-profile-btn {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  border: 1px solid var(--r-border);
+  background: var(--r-surface);
+  color: var(--r-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.feed-profile-btn:active {
+  transform: scale(0.96);
+}
+
+.feed-profile-btn:focus-visible {
+  outline: 2px solid var(--r-info);
+  outline-offset: 2px;
+}
+
+.feed-privacy {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0 16px 12px;
+  font-size: 12px;
+  color: var(--r-subtle);
+  background: var(--r-page);
+}
+
+.feed-body {
+  flex: 1;
+  padding: 0 16px 24px;
+}
+
+.feed-section {
+  margin: 4px 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--r-muted);
+}
+
+.feed-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.feed-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-height: 56px;
+  padding: 14px 16px;
+  border: 1px solid var(--r-border);
+  border-radius: var(--r-radius);
+  background: var(--r-surface);
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.08s ease;
+}
+
+.feed-card:active {
+  transform: scale(0.99);
+}
+
+.feed-card:focus-visible {
+  outline: 2px solid var(--r-info);
+  outline-offset: 2px;
+}
+
+.feed-card-meta {
+  font-size: 12px;
+  color: var(--r-subtle);
+}
+
+.feed-card-headline {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.feed-card-summary {
+  font-size: 14px;
+  color: var(--r-subtle);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.feed-empty {
+  padding: 32px 0;
+  text-align: center;
+  color: var(--r-muted);
+  font-size: 14px;
+}

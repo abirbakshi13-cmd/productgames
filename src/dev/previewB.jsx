@@ -4,6 +4,7 @@ import { lazy, StrictMode, Suspense, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { clearProfile, saveProfile } from '../shared/api.js';
 import { getStory } from '../stories.js';
+import PhoneFrame from '../components/PhoneFrame.jsx';
 import '../styles/receipts-theme.css';
 
 const Feed = lazy(() => import('../screens/Feed.jsx'));
@@ -56,7 +57,9 @@ function DevPanel() {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <PreviewB />
+    <PhoneFrame>
+      <PreviewB />
+    </PhoneFrame>
     <DevPanel />
   </StrictMode>,
 );
