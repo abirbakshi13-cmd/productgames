@@ -1,0 +1,79 @@
+.qcard {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 16px;
+  background: #fff;
+}
+
+.qcard-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.qcard-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.qcard-skip {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 12px;
+  border: none;
+  background: none;
+  color: #6b7280;
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.qcard-skip--on {
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.qcard-why-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #1d4ed8;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.qcard-chev {
+  transition: transform 0.15s;
+}
+
+.qcard-chev--open {
+  transform: rotate(180deg);
+}
+
+.qcard-why {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #4b5563;
+}
+
+.qcard-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.qcard-sub {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4b5563;
+}
