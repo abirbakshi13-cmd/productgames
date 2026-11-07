@@ -25,8 +25,11 @@ const REPORT_PATH = path.join(ROOT, 'prep-report.md');
 
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36 ReceiptsPrototype/0.1';
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const MODEL_PRIMARY = 'llama-3.3-70b-versatile';
-const MODEL_FALLBACK = 'llama-3.1-8b-instant';
+const GROQ_MODELS_URL = 'https://api.groq.com/openai/v1/models';
+// Resolved at startup from the live /models list; see pickModels().
+let MODEL_PRIMARY = 'llama-3.3-70b-versatile';
+let MODEL_FALLBACK = 'llama-3.1-8b-instant';
+const MODEL_PREFERENCE = [/llama-4-maverick/, /llama-4-scout/, /llama-3\.3-70b/, /gpt-oss-120b/, /qwen.*32b/, /70b/];
 const KEYWORDS = ['rent', 'tuition', 'loan', 'wage', 'tax', 'fare', 'price', 'fee', 'law', 'rule', 'bill', 'deadline', 'enroll', 'election', 'vote', 'council', 'washington', 'seattle', 'king county'];
 
 // ---------- CLI ----------
@@ -333,21 +336,46 @@ async function fetchArticle(item) {
 // ---------- LLM ----------
 let total70bRateLimits = 0;
 let usingFallbackModel = false;
+const noJsonMode = new Set(); // models that rejected response_format: json_object
+
+async function pickModels() {
+  const res = await fetchWithTimeout(GROQ_MODELS_URL, { headers: { Authorization: `Bearer ${GROQ_API_KEY}` } });
+  const body = await res.text();
+  if (!res.ok) throw new Error(`Groq GET ${GROQ_MODELS_URL} -> HTTP ${res.status}: ${body.slice(0, 400)}`);
+  const ids = (JSON.parse(body).data || []).map((m) => m.id).filter(Boolean).sort();
+  if (!ids.length) throw new Error('Groq /models returned no models');
+
+  const envModel = process.env.GROQ_MODEL;
+  if (envModel && ids.includes(envModel)) MODEL_PRIMARY = envModel;
+  else {
+    if (envModel) console.warn(`  GROQ_MODEL="${envModel}" is not in the available model list; ignoring it.`);
+    const hit = MODEL_PREFERENCE.map((re) => ids.find((id) => re.test(id))).find(Boolean);
+    if (!hit) throw new Error(`No preferred model available. Groq offers: ${ids.join(', ')}`);
+    MODEL_PRIMARY = hit;
+  }
+  // Last resort keeps the 429 fallback meaningful on accounts with no 8b/instant/scout model.
+  const smaller = ids.filter((id) => id !== MODEL_PRIMARY);
+  MODEL_FALLBACK = smaller.find((id) => /8b|instant|scout/.test(id)) || smaller.find((id) => /20b/.test(id)) || MODEL_PRIMARY;
+  console.log(`Groq endpoint: ${GROQ_URL}`);
+  console.log(`Groq models: primary="${MODEL_PRIMARY}", rate-limit fallback="${MODEL_FALLBACK}" (${ids.length} available)`);
+}
 
 async function callGroq(messages) {
   const model = usingFallbackModel ? MODEL_FALLBACK : MODEL_PRIMARY;
   for (let attempt = 0; attempt < 5; attempt++) {
+    const payload = { model, temperature: 0.1, max_tokens: 1500, messages };
+    if (!noJsonMode.has(model)) payload.response_format = { type: 'json_object' };
     const res = await fetch(GROQ_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${GROQ_API_KEY}` },
-      body: JSON.stringify({ model, temperature: 0.1, response_format: { type: 'json_object' }, max_tokens: 1500, messages }),
+      body: JSON.stringify(payload),
     });
     if (res.status === 429) {
       if (!usingFallbackModel) {
         total70bRateLimits += 1;
         if (total70bRateLimits > 6) {
           usingFallbackModel = true;
-          console.warn('  70b model rate-limited >6 times this run; switching remaining requests to llama-3.1-8b-instant.');
+          console.warn(`  ${MODEL_PRIMARY} rate-limited >6 times this run; switching remaining requests to ${MODEL_FALLBACK}.`);
         }
       }
       const retryAfterHeader = Number(res.headers.get('retry-after'));
@@ -355,7 +383,17 @@ async function callGroq(messages) {
       await sleep(waitSec * 1000);
       continue;
     }
-    if (!res.ok) throw new Error(`Groq HTTP ${res.status}`);
+    if (!res.ok) {
+      const body = await res.text();
+      let msg = body.slice(0, 400);
+      try { msg = JSON.parse(body).error?.message || msg; } catch { /* keep raw body */ }
+      if (res.status === 400 && /response_format/i.test(msg) && !noJsonMode.has(model)) {
+        noJsonMode.add(model);
+        console.warn(`  ${model} rejected response_format json_object (${msg}); retrying without it.`);
+        continue;
+      }
+      throw new Error(`Groq POST ${GROQ_URL} model="${model}" -> HTTP ${res.status}: ${msg}`);
+    }
     const data = await res.json();
     return data.choices?.[0]?.message?.content ?? '';
   }
@@ -363,11 +401,14 @@ async function callGroq(messages) {
 }
 
 function tryParseJson(raw) {
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return null;
+  // Without json_object mode the model may wrap the object in ``` fences or prose.
+  const stripped = String(raw).replace(/```(?:json)?/gi, '').trim();
+  for (const text of [stripped, stripped.slice(stripped.indexOf('{'), stripped.lastIndexOf('}') + 1)]) {
+    try {
+      return JSON.parse(text);
+    } catch { /* try the next shape */ }
   }
+  return null;
 }
 
 // Cheap presence check used to decide whether to spend the one allowed retry.
@@ -588,7 +629,7 @@ function writeReport({ feedResults, fetchResults, llmResults, candidates, droppe
   lines.push(`- Sent to LLM: ${sentToLlm}`);
   lines.push(`- Relevant: ${relevant}`);
   lines.push(`- Valid candidates: ${candidates.length}`);
-  lines.push(`- Model fallback used: ${usingFallbackModel ? 'yes (switched to llama-3.1-8b-instant)' : 'no'}`);
+  lines.push(`- Model: ${MODEL_PRIMARY}${usingFallbackModel ? ` (rate-limit fallback used: ${MODEL_FALLBACK})` : ''}`);
   lines.push('');
   lines.push('### By receipt type');
   lines.push('');
@@ -663,6 +704,7 @@ async function main() {
 
   const candidates = [];
   if (!DRY_RUN) {
+    await pickModels();
     console.log(`\nSending ${fetchable.length} articles to Groq (concurrency 2)...`);
     const llmResults = await runPool(2, fetchable, async (item) => {
       const result = await getStoryFromLLM(item);
