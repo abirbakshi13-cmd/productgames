@@ -146,7 +146,7 @@ export default function Home({ onOpenStory = () => {}, onNav = () => {} }) {
   const affected = useMemo(() => affectedStories(profile), [profile])
   const S = useMemo(() => affected.slice(0, 3).map(toSlide), [affected])
   const count = affected.length
-  const touchCopy = `${count} ${count === 1 ? 'story touches' : 'stories touch'} you`
+  const countCopy = `${count} ${count === 1 ? 'story' : 'stories'} for you`
 
   const i = S.length ? idx % S.length : 0
   const c = S[i]
@@ -159,7 +159,7 @@ export default function Home({ onOpenStory = () => {}, onNav = () => {} }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, height: 32, padding: '0 12px', borderRadius: 'var(--radius-pill)', background: 'var(--surface)', font: '600 13px/1 var(--font-sans)' }}>
               <Icon name="flame" size={16} />
-              {touchCopy}
+              {countCopy}
             </span>
             <button className="tw-iconbtn" type="button" aria-label="Your profile" onClick={() => onNav('you')} style={{ overflow: 'hidden', padding: 0 }}>
               <Character look={{ ...look, mood: 'chill' }} crop="head" size={42} />
@@ -211,7 +211,7 @@ export default function Home({ onOpenStory = () => {}, onNav = () => {} }) {
           <>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
               <span className="tw-meta" style={{ color: 'var(--ink)' }}>Your day, forecast</span>
-              <span className="tw-meta">{touchCopy}</span>
+              <span className="tw-meta">{countCopy}</span>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 10 }}>
               {S.map((f, j) => (

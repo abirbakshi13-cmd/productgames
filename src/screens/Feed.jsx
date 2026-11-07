@@ -71,7 +71,7 @@ export default function Feed({ onOpenStory = () => {}, onNav = () => {} }) {
         <span className="tw-meta">{todayLabel()}</span>
         <h1 className="display-l" style={{ margin: 0 }}>Your news</h1>
         <p className="body" style={{ margin: 0, color: 'var(--ink-soft)' }}>
-          {a} {a === 1 ? 'story touches' : 'stories touch'} your life. We skipped {b} that {b === 1 ? "doesn't" : "don't"}.
+          {a} {a === 1 ? 'story' : 'stories'} for you. We skipped {b} that {b === 1 ? "doesn't" : "don't"} affect you.
         </p>
         <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '4px 2px 2px', margin: '0 -2px' }}>
           {FILTERS.map((f) => (
@@ -111,7 +111,7 @@ export default function Feed({ onOpenStory = () => {}, onNav = () => {} }) {
         ))}
         {cards.length === 0 && (
           <p className="body" style={{ margin: 0, color: 'var(--ink-soft)' }}>
-            Nothing in this topic touches you right now.
+            Nothing in this topic affects you right now.
           </p>
         )}
         {b > 0 && (
@@ -128,7 +128,7 @@ export default function Feed({ onOpenStory = () => {}, onNav = () => {} }) {
           >
             <span className="tw-meta">Outside your bubble</span>
             <h3 className="headline" style={{ margin: 0 }}>
-              {b} big {b === 1 ? "story doesn't" : "stories don't"} touch your day, but they matter.
+              {b} big {b === 1 ? "story doesn't" : "stories don't"} affect you directly, but {b === 1 ? 'it matters' : 'they matter'}.
             </h3>
             <p className="body" style={{ margin: 0, color: 'var(--ink-soft)' }}>
               Seeing past your own feed keeps the algorithm honest. We add one to your brief each week.

@@ -207,6 +207,7 @@ export function uuisFromProfile(profile) {
   const chips = []
 
   if (p.neighborhood) chips.push({ label: p.neighborhood, topic: 'home', key: 'state', value: p.state })
+  else if (p.zip) chips.push({ label: `ZIP ${p.zip}`, topic: 'home', key: 'state', value: p.state })
 
   if (Array.isArray(p.roles)) {
     for (const role of p.roles) {

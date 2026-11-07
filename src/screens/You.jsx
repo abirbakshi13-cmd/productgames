@@ -124,7 +124,7 @@ export default function You({ onEditTwin, onEditAnswers, onOpenHistory, onDelete
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <span className="headline">Your Twin</span>
             <span className="tw-meta">
-              {storyCount} {storyCount === 1 ? 'story touches' : 'stories touch'} you
+              {storyCount} {storyCount === 1 ? 'story' : 'stories'} for you
             </span>
             <button
               className="tw-btn tw-btn--secondary"
@@ -253,7 +253,7 @@ export default function You({ onEditTwin, onEditAnswers, onOpenHistory, onDelete
           }}
         >
           <Icon name="check" size={20} />
-          <span className="body">Your UUIs stay on your phone. No ads. Never sold.</span>
+          <span className="body">Your data stays on your phone. No ads. Never sold.</span>
         </div>
         {confirming ? (
           <div

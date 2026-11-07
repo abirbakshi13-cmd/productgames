@@ -78,7 +78,7 @@ export default function Uuis({ onNext = () => {}, onBack = () => {} }) {
           <span style={iconTile('var(--sky)')}>
             <Icon name="eye" size={20} />
           </span>
-          <span className="body">Filters out news that doesn&apos;t touch your life.</span>
+          <span className="body">Filters out news that doesn&apos;t affect you.</span>
         </div>
         <div style={row}>
           <span style={iconTile('var(--butter)')}>

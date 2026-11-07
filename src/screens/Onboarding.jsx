@@ -6,11 +6,8 @@ import { useProfile } from '../lib/useProfile.js'
 import { saveProfile } from '../lib/profileStore.js'
 
 const QUESTIONS = [
-  { id: 'live', title: 'Where do you live?', helper: 'So you only hear about what is near you.', multi: false, options: [
-    { id: 'caphill', label: 'Capitol Hill', icon: 'pin', topic: 'home', adds: ['Capitol Hill'] },
-    { id: 'beacon', label: 'Beacon Hill', icon: 'pin', topic: 'home', adds: ['Beacon Hill'] },
-    { id: 'ballard', label: 'Ballard', icon: 'pin', topic: 'home', adds: ['Ballard'] },
-    { id: 'elsewhere', label: 'Somewhere else in Seattle', icon: 'pin', topic: 'home', adds: ['Seattle'] }] },
+  // ZIP is a text field rather than options; saveProfile derives `state` from it.
+  { id: 'live', title: "What's your ZIP code?", helper: 'So you only hear about what is near you.', zip: true },
   { id: 'role', title: 'What does your week look like?', helper: 'This changes which work, money and school news reaches you.', multi: true, options: [
     { id: 'fulltime', label: 'Working full time', icon: 'briefcase', topic: 'campus', adds: ['Full-time worker'] },
     { id: 'parttime', label: 'Part time, shifts or gigs', icon: 'clock', topic: 'money', adds: ['Hourly worker'] },
@@ -45,12 +42,9 @@ const QUESTIONS = [
     { id: 'campus', label: 'Work and school', icon: 'briefcase', topic: 'campus', adds: ['Cares: work'] }] },
 ]
 
-const PLACES = {
-  caphill: { zip: '98102', neighborhood: 'Capitol Hill' },
-  beacon: { zip: '98144', neighborhood: 'Beacon Hill' },
-  ballard: { zip: '98107', neighborhood: 'Ballard' },
-  elsewhere: { zip: '98101', neighborhood: 'Seattle' },
-}
+const isValidZip = (zip) => /^\d{5}$/.test(zip || '')
+// Seattle ZIPs (981xx) get the "Seattle" label used by the UUI chip and Home's date line.
+const neighborhoodFor = (zip) => (/^981/.test(zip) ? 'Seattle' : null)
 const HOME_TO_HOUSING = { rent: 'renting', shared: 'dorm', family: 'family', own: 'own' }
 const EARN_TO_INCOME = { low: 'under-1k', mid: '1k-2.5k', high: '2.5k+', none: null }
 const MOVE_TO_TRANSPORT = { car: 'car', transit: 'transit', bike: 'bike-walk', walk: 'bike-walk' }
@@ -64,7 +58,7 @@ function patchFor(qid, answer) {
   const list = Array.isArray(answer) && answer.length ? answer : null
   switch (qid) {
     case 'live':
-      return PLACES[answer] || { zip: null, neighborhood: null }
+      return isValidZip(answer) ? { zip: answer, neighborhood: neighborhoodFor(answer) } : { zip: null, neighborhood: null }
     case 'role':
       if (!list) return { roles: null, work: null, student: null }
       return {
@@ -98,9 +92,7 @@ function answersFromProfile(profile) {
   const p = profile || {}
   const a = {}
 
-  const byLabel = Object.keys(PLACES).find((k) => PLACES[k].neighborhood === p.neighborhood)
-  const byZip = Object.keys(PLACES).find((k) => PLACES[k].zip === p.zip)
-  if (byLabel || byZip) a.live = byLabel || byZip
+  if (p.zip) a.live = p.zip
 
   if (Array.isArray(p.roles)) {
     a.role = p.roles.slice()
@@ -163,7 +155,17 @@ export default function Onboarding({ onDone = () => {}, onBack = () => {}, initi
     else setStep(step + 1)
   }
 
+  function setZip(e) {
+    const zip = e.target.value.replace(/\D/g, '').slice(0, 5)
+    setAnswers({ ...answers, live: zip })
+    if (isValidZip(zip)) saveProfile(patchFor('live', zip))
+  }
+
+  // A partly typed ZIP can't be saved: ask for 5 digits (Skip still works).
+  const zipError = q.zip && answers.live && !isValidZip(answers.live)
+
   function next() {
+    if (zipError) return
     saveProfile(patchFor(q.id, answers[q.id]))
     advance()
   }
@@ -217,7 +219,7 @@ export default function Onboarding({ onDone = () => {}, onBack = () => {}, initi
       <p className="body" style={{ margin: 0, color: 'var(--ink-soft)' }}>
         {q.helper}
       </p>
-      <span className="tw-meta">{q.multi ? 'Pick all that apply' : 'Pick one'}</span>
+      {!q.zip && <span className="tw-meta">{q.multi ? 'Pick all that apply' : 'Pick one'}</span>}
       <div
         style={{
           flex: 1,
@@ -229,7 +231,28 @@ export default function Onboarding({ onDone = () => {}, onBack = () => {}, initi
           padding: 3,
         }}
       >
-        {q.options.map((o) => (
+        {q.zip && (
+          <div className="tw-field">
+            <label htmlFor="onb-zip">ZIP code</label>
+            <input
+              id="onb-zip"
+              className="tw-input"
+              inputMode="numeric"
+              autoComplete="postal-code"
+              maxLength={5}
+              placeholder="98105"
+              value={answers.live || ''}
+              onChange={setZip}
+              onKeyDown={(e) => e.key === 'Enter' && next()}
+            />
+            {zipError && (
+              <span className="tw-meta" style={{ color: 'var(--ink)' }}>
+                Enter all 5 digits
+              </span>
+            )}
+          </div>
+        )}
+        {(q.options || []).map((o) => (
           <button
             key={`${q.id}-${o.id}`}
             className="tw-option"
