@@ -1,101 +1,180 @@
 [
   {
-    "id": "fx-loans",
-    "topicKey": "fx-federal-loan-interest",
-    "headline": "[FIXTURE] Federal student loan interest resets on Dec 1",
-    "summary": "A fake placeholder story used to test the money Receipt. Federal borrowers would see a higher monthly bill. Private and paid-off borrowers are not covered.",
-    "source": { "name": "Fixture Wire", "url": "https://example.com/fixture/federal-loan-interest", "date": "2026-11-05" },
+    "id": "closed-school-discharge-expansion-npr-education",
+    "topicKey": "closed-school-discharge-expansion",
+    "headline": "Their colleges closed, but the government refuses to erase their debts, lawsuit says",
+    "summary": "A Biden-era order widened the closed-school discharge window to cover borrowers enrolled as of May 6, 2015. The Trump administration is denying some of those applications, and a borrower advocacy group has sued the Education Department. The program applies to federal student loans from schools that shut down suddenly.",
+    "source": {
+      "name": "NPR Education",
+      "url": "https://www.npr.org/2026/10/29/nx-s1-6003916/student-loans-closed-colleges-education-department-trump-biden",
+      "date": "2026-10-29"
+    },
     "category": "loans",
-    "stage": "passed",
+    "stage": "in_effect",
     "featured": true,
     "needs": ["loans"],
     "receipts": [
       {
         "when": { "loans": "federal" },
-        "type": "money",
-        "direction": "cost",
-        "low": 38,
-        "high": 52,
-        "unit": "/mo",
-        "calc": "1.2 point rate increase on a $18,000–$24,000 balance = $38–$52/mo",
-        "text": "Your federal loan payment goes up about $38 to $52 a month starting in December.",
-        "evidence": "Borrowers with federal loans will pay between $38 and $52 more each month once the new rate takes effect."
-      }
-    ],
-    "otherwise": "Private-loan borrowers and people with no student debt keep the same payment.",
-    "alsoReportedBy": []
-  },
-  {
-    "id": "fx-rent",
-    "topicKey": "fx-wa-rent-cap",
-    "headline": "[FIXTURE] Washington caps yearly rent increases",
-    "summary": "A fake placeholder story used to test ask-in-context. A state cap would limit how much rent can rise each year. Non-renters get a rules-only Receipt.",
-    "source": { "name": "Fixture State Standard", "url": "https://example.com/fixture/wa-rent-cap", "date": "2026-11-03" },
-    "category": "rent",
-    "stage": "in_effect",
-    "featured": true,
-    "needs": ["housing"],
-    "receipts": [
-      {
-        "when": { "state": "WA", "housing": "renting" },
-        "type": "money",
-        "direction": "saving",
-        "low": 30,
-        "high": 45,
-        "unit": "/mo",
-        "calc": "cap holds the increase to 3% instead of 6% on $1,000–$1,500 rent = $30–$45/mo saved",
-        "text": "Your rent can't rise more than the state cap, saving you about $30 to $45 a month.",
-        "evidence": "The cap limits annual rent increases to 3 percent, about $30 to $45 a month less than last year's typical increase."
-      },
-      {
-        "when": { "state": "WA", "housing": ["dorm", "family", "own"] },
         "type": "rule",
-        "text": "The new rent cap doesn't set your housing cost, but it applies if you rent later.",
-        "evidence": "The cap applies only to tenants with a residential lease, not to dorm residents or homeowners."
+        "text": "You may qualify to have your federal loans erased if your college closed suddenly.",
+        "evidence": "Under the change, any borrower who was enrolled as of May 6, 2015, would qualify for a loan discharge and refund of any past payments."
       }
     ],
-    "otherwise": "Renters outside Washington are not covered by this cap."
+    "otherwise": "Parent PLUS borrowers can also apply, but private student loans are not covered by this rule."
   },
   {
-    "id": "fx-rule",
-    "topicKey": "fx-wa-car-tab-rule",
-    "headline": "[FIXTURE] New inspection rule for cars registered in Washington",
-    "summary": "A fake placeholder story used to test the not-affected state. Drivers would need a new inspection at renewal. People who don't drive are unaffected.",
-    "source": { "name": "Fixture Daily", "url": "https://example.com/fixture/wa-car-inspection", "date": "2026-10-30" },
-    "category": "transit",
-    "stage": "passed",
+    "id": "iran-war-oil-price-risk-cnbc",
+    "topicKey": "iran-war-oil-price-risk",
+    "headline": "Risk of Iran war escalation remains high despite Democratic sweep in U.S. midterm election",
+    "summary": "Analysts say the U.S. and Iran are moving back toward open fighting even after the midterm results. Crude prices fell more than 16% in five trading days on hopes the war would end, and analysts expect them to climb back above $100 a barrel if fighting resumes. Congress cannot act on a war powers resolution until Democrats are sworn in during January.",
+    "source": {
+      "name": "CNBC",
+      "url": "https://www.cnbc.com/2026/11/07/iran-war-midterm-election-oil-price-trump.html",
+      "date": "2026-11-07"
+    },
+    "category": "prices",
+    "stage": "in_effect",
     "featured": true,
     "needs": ["transport"],
     "receipts": [
       {
         "when": { "transport": "car" },
         "type": "rule",
-        "text": "You'll need a safety inspection before you renew your car tabs.",
-        "evidence": "Drivers must present a completed safety inspection before renewing vehicle registration."
+        "text": "If the fighting resumes, analysts expect fuel prices to rise, so driving would cost you more.",
+        "evidence": "Gasoline, diesel and jet fuel prices would all surge as a consequence, Hochstein told CNBC's \"Power Lunch\" Friday."
       }
     ],
-    "otherwise": "Drivers are the only people this rule reaches; transit riders and cyclists are not affected."
+    "otherwise": "Drivers would feel this first at the pump, and higher fuel costs eventually reach bus fares and delivered goods."
   },
   {
-    "id": "fx-deadline",
-    "topicKey": "fx-student-aid-deadline",
-    "headline": "[FIXTURE] State student aid applications close Dec 1",
-    "summary": "A fake placeholder story used to test the deadline Receipt. Enrolled students must apply by the deadline to get the grant. Non-students have nothing to file.",
-    "source": { "name": "Fixture Education Desk", "url": "https://example.com/fixture/student-aid-deadline", "date": "2026-11-01" },
-    "category": "other",
-    "stage": "in_effect",
+    "id": "wa-2027-rent-cap-nbcrightnow",
+    "topicKey": "wa-2027-rent-cap",
+    "headline": "Washington sets a 10% cap on rent increases for 2027",
+    "summary": "The Washington State Department of Commerce set the maximum annual rent increase at 10% for 2027. The cap covers rental units under the state Residential Landlord Tenant Law and runs from January 1 to December 31, 2027. It comes from House Bill 1217, the 2025 rent stabilization law.",
+    "source": {
+      "name": "NBC Right Now",
+      "url": "https://www.nbcrightnow.com/news/washington-doc-sets-10-rent-increase-cap-for-2027/article_b6c5a301-3348-53d1-9b4d-fe0bdc153cde.html",
+      "date": "2026-11-07"
+    },
+    "category": "rent",
+    "stage": "passed",
     "featured": true,
-    "needs": ["student"],
+    "needs": ["housing"],
     "receipts": [
       {
-        "when": { "student": ["4yr", "cc", "grad"] },
-        "type": "deadline",
-        "date": "2026-12-01",
-        "dueDate": "2026-12-01",
-        "text": "Apply for the state grant by December 1 or you lose it for this year.",
-        "evidence": "Applications for the state need grant must be submitted by December 1 to be considered for the current year."
+        "when": { "state": "WA", "housing": "renting" },
+        "type": "money",
+        "direction": "cost",
+        "low": 100,
+        "high": 150,
+        "unit": "/mo",
+        "calc": "10% cap applied to $1,000-1,500 rent = at most $100-150/mo more",
+        "text": "Your landlord cannot raise your rent more than 10% during 2027.",
+        "evidence": "The Washington State Department of Commerce (COM) announced on Wednesday that all rental units subject to the Residential Landlord Tenant Law in Washington state will be allowed a maximum annual rent increase percentage of 10% in 2027."
       }
     ],
-    "otherwise": "People not enrolled in school have no application to file."
+    "otherwise": "Homeowners are not covered, and the cap only applies after your first 12 months in a unit."
+  },
+  {
+    "id": "seattle-2027-minimum-wage-fox13seattle",
+    "topicKey": "seattle-2027-minimum-wage",
+    "headline": "Seattle's minimum wage rises to $22.14 on January 1, 2027",
+    "summary": "Seattle's Office of Labor Standards set the city minimum wage at $22.14 an hour starting January 1, 2027, up from $21.30 in 2026. The rate applies to every employer inside Seattle city limits regardless of size. Washington's state minimum wage is currently $17.13.",
+    "source": {
+      "name": "FOX 13 Seattle",
+      "url": "https://www.fox13seattle.com/news/seattle-minimum-wage-increase",
+      "date": "2026-11-07"
+    },
+    "category": "work",
+    "stage": "passed",
+    "featured": true,
+    "needs": ["work"],
+    "receipts": [
+      {
+        "when": { "state": "WA", "work": ["part-time", "full-time"] },
+        "type": "money",
+        "direction": "saving",
+        "low": 0.84,
+        "high": 0.84,
+        "unit": "/hr",
+        "calc": "$22.14 in 2027 - $21.30 in 2026 = $0.84 more per hour",
+        "text": "If you work in Seattle, your hourly minimum goes up 84 cents to $22.14 in January.",
+        "evidence": "On Jan. 1, 2027, the minimum wage for Washington's largest city will take an 84-cent climb, reaching $22.14."
+      }
+    ],
+    "otherwise": "Workers outside Seattle city limits stay on their own city's rate or the state minimum wage."
+  },
+  {
+    "id": "wa-2027-noncompete-ban-lni",
+    "topicKey": "wa-2027-noncompete-ban",
+    "headline": "Washington will prohibit non-compete clauses from July 2027",
+    "summary": "The Washington State Department of Labor and Industries published the wage rules that take effect January 1, 2027, including a higher state minimum wage and a higher overtime-exemption salary threshold. The same announcement confirms that state law will ban non-compete clauses from July 2027. Until then, a salary threshold decides whether an existing clause can be enforced.",
+    "source": {
+      "name": "Washington State Dept. of Labor & Industries",
+      "url": "https://www.lni.wa.gov/news-events/article/26-17",
+      "date": "2026-11-07"
+    },
+    "category": "work",
+    "stage": "passed",
+    "featured": false,
+    "needs": ["work"],
+    "receipts": [
+      {
+        "when": { "state": "WA", "work": ["part-time", "full-time"] },
+        "type": "rule",
+        "text": "From July 2027 your employer cannot hold you to a non-compete clause in Washington.",
+        "evidence": "State law will prohibit non-compete clauses starting in July 2027."
+      }
+    ],
+    "otherwise": "If you are not working now, the ban still covers any Washington job you take after July 2027."
+  },
+  {
+    "id": "seattle-d5-council-jenks-the-urbanist",
+    "topicKey": "seattle-d5-council-jenks",
+    "headline": "Nilu Jenks wins Seattle council seat in blowout",
+    "summary": "Nilu Jenks won the District 5 Seattle City Council seat with a 17-point lead on election night. Her win grows the council's progressive bloc to four members and replaces interim Councilmember Debora Juarez. Jenks named safety redesigns of Aurora Avenue N and Lake City Way as top priorities.",
+    "source": {
+      "name": "The Urbanist",
+      "url": "https://www.theurbanist.org/nilu-jenks-wins-seattle-council-seat-in-blowout/",
+      "date": "2026-11-05"
+    },
+    "category": "other",
+    "stage": "in_effect",
+    "featured": false,
+    "needs": [],
+    "receipts": [
+      {
+        "when": { "state": "WA" },
+        "type": "rep",
+        "text": "A new councilmember will vote on Seattle street safety, housing and transit spending.",
+        "evidence": "Nilu Jenks has won a Seattle City Council seat based on the decisive 17-point lead she ran up on election night."
+      }
+    ],
+    "otherwise": "This seat covers Seattle's District 5, so voters elsewhere in Washington keep their current representatives."
+  },
+  {
+    "id": "wa-house-democratic-supermajority-the-urbanist",
+    "topicKey": "wa-house-democratic-supermajority",
+    "headline": "Democrats on course for supermajority in Washington state House",
+    "summary": "Election night returns point to Democrats reaching a two-thirds supermajority in the Washington state House. Districts in Clark County, the Yakima Valley and Kitsap County flipped from Republican to Democratic. About half of ballots were counted at that point, so several races are still close.",
+    "source": {
+      "name": "The Urbanist",
+      "url": "https://www.theurbanist.org/democrats-on-course-for-supermajority-in-washington-state-house-election-night-results-show/",
+      "date": "2026-11-04"
+    },
+    "category": "other",
+    "stage": "proposed",
+    "featured": false,
+    "needs": [],
+    "receipts": [
+      {
+        "when": { "state": "WA" },
+        "type": "rep",
+        "text": "Your state House looks set for a two-thirds Democratic majority when it meets in January.",
+        "evidence": "Election night returns, when about half of ballots are counted in Washington's vote-by-mail elections, indicated Democrats are likely on course to a two-thirds supermajority in the state House."
+      }
+    ],
+    "otherwise": "Voters in other states are not affected, but the result shapes Washington tax, housing and transit bills."
   }
 ]
