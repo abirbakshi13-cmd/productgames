@@ -242,19 +242,6 @@ export default function You({ onEditTwin, onEditAnswers, onOpenHistory, onDelete
             </button>
           </div>
         </div>
-        <div
-          style={{
-            display: 'flex',
-            gap: 10,
-            alignItems: 'center',
-            padding: 14,
-            borderRadius: 'var(--radius-md)',
-            background: 'var(--mint)',
-          }}
-        >
-          <Icon name="check" size={20} />
-          <span className="body">Your data stays on your phone. No ads. Never sold.</span>
-        </div>
         {confirming ? (
           <div
             role="group"
