@@ -1,83 +1,101 @@
 [
   {
-    "id": "fed-loan-payment-2026",
-    "topicKey": "federal-loan-repayment-change",
-    "headline": "Placeholder: Federal student loan repayment plan changes",
-    "summary": "Placeholder story. A change to federal repayment plans raises monthly payments for many borrowers.",
-    "source": { "name": "Placeholder News", "url": "https://example.com/fed-loan-payment", "date": "2026-10-13" },
+    "id": "fx-loans",
+    "topicKey": "fx-federal-loan-interest",
+    "headline": "[FIXTURE] Federal student loan interest resets on Dec 1",
+    "summary": "A fake placeholder story used to test the money Receipt. Federal borrowers would see a higher monthly bill. Private and paid-off borrowers are not covered.",
+    "source": { "name": "Fixture Wire", "url": "https://example.com/fixture/federal-loan-interest", "date": "2026-11-05" },
     "category": "loans",
     "stage": "passed",
+    "featured": true,
     "needs": ["loans"],
     "receipts": [
       {
-        "when": { "loans": ["federal", "both"] },
+        "when": { "loans": "federal" },
         "type": "money",
         "direction": "cost",
-        "low": 40,
-        "high": 90,
+        "low": 38,
+        "high": 52,
         "unit": "/mo",
-        "text": "Your federal loan payment could rise $40–90/mo once repayment starts.",
-        "evidence": "Placeholder: Borrowers on the affected plans could see payments rise by $40 to $90 a month."
+        "calc": "1.2 point rate increase on a $18,000–$24,000 balance = $38–$52/mo",
+        "text": "Your federal loan payment goes up about $38 to $52 a month starting in December.",
+        "evidence": "Borrowers with federal loans will pay between $38 and $52 more each month once the new rate takes effect."
       }
     ],
-    "otherwise": "This only affects people with federal student loans."
+    "otherwise": "Private-loan borrowers and people with no student debt keep the same payment.",
+    "alsoReportedBy": []
   },
   {
-    "id": "wa-rent-cap-2026",
-    "topicKey": "wa-rent-increase-cap",
-    "headline": "Placeholder: Washington caps annual rent increases",
-    "summary": "Placeholder story. A new state law limits how much landlords can raise rent each year.",
-    "source": { "name": "Placeholder News", "url": "https://example.com/wa-rent-cap", "date": "2026-10-21" },
+    "id": "fx-rent",
+    "topicKey": "fx-wa-rent-cap",
+    "headline": "[FIXTURE] Washington caps yearly rent increases",
+    "summary": "A fake placeholder story used to test ask-in-context. A state cap would limit how much rent can rise each year. Non-renters get a rules-only Receipt.",
+    "source": { "name": "Fixture State Standard", "url": "https://example.com/fixture/wa-rent-cap", "date": "2026-11-03" },
     "category": "rent",
     "stage": "in_effect",
+    "featured": true,
     "needs": ["housing"],
     "receipts": [
       {
         "when": { "state": "WA", "housing": "renting" },
-        "type": "rule",
-        "text": "Your landlord can't raise your rent more than the yearly cap.",
-        "evidence": "Placeholder: Landlords may not raise rent above the annual cap set by the state."
-      }
-    ],
-    "otherwise": "This only affects renters in Washington."
-  },
-  {
-    "id": "wa-min-wage-proposal-2026",
-    "topicKey": "wa-min-wage-increase",
-    "headline": "Placeholder: Lawmakers propose raising the state minimum wage",
-    "summary": "Placeholder story. A bill would raise the minimum wage next year; it hasn't been voted on yet.",
-    "source": { "name": "Placeholder News", "url": "https://example.com/wa-min-wage", "date": "2026-10-28" },
-    "category": "work",
-    "stage": "proposed",
-    "needs": ["work"],
-    "receipts": [
+        "type": "money",
+        "direction": "saving",
+        "low": 30,
+        "high": 45,
+        "unit": "/mo",
+        "calc": "cap holds the increase to 3% instead of 6% on $1,000–$1,500 rent = $30–$45/mo saved",
+        "text": "Your rent can't rise more than the state cap, saving you about $30 to $45 a month.",
+        "evidence": "The cap limits annual rent increases to 3 percent, about $30 to $45 a month less than last year's typical increase."
+      },
       {
-        "when": { "state": "WA", "work": ["part-time", "full-time"] },
-        "type": "rep",
-        "text": "Your state representative will vote on this. Tell them what you think.",
-        "evidence": "Placeholder: The bill is expected to get a vote in the state House early next year."
+        "when": { "state": "WA", "housing": ["dorm", "family", "own"] },
+        "type": "rule",
+        "text": "The new rent cap doesn't set your housing cost, but it applies if you rent later.",
+        "evidence": "The cap applies only to tenants with a residential lease, not to dorm residents or homeowners."
       }
     ],
-    "otherwise": "This only affects people working in Washington."
+    "otherwise": "Renters outside Washington are not covered by this cap."
   },
   {
-    "id": "transit-reduced-fare-2026",
-    "topicKey": "transit-reduced-fare-enrollment",
-    "headline": "Placeholder: Reduced transit fare enrollment closes soon",
-    "summary": "Placeholder story. Riders have until December to sign up for a reduced-fare transit pass.",
-    "source": { "name": "Placeholder News", "url": "https://example.com/reduced-fare", "date": "2026-11-05" },
+    "id": "fx-rule",
+    "topicKey": "fx-wa-car-tab-rule",
+    "headline": "[FIXTURE] New inspection rule for cars registered in Washington",
+    "summary": "A fake placeholder story used to test the not-affected state. Drivers would need a new inspection at renewal. People who don't drive are unaffected.",
+    "source": { "name": "Fixture Daily", "url": "https://example.com/fixture/wa-car-inspection", "date": "2026-10-30" },
     "category": "transit",
-    "stage": "in_effect",
+    "stage": "passed",
+    "featured": true,
     "needs": ["transport"],
     "receipts": [
       {
-        "when": { "state": "WA", "transport": "transit" },
-        "type": "deadline",
-        "dueDate": "2026-12-01",
-        "text": "Sign up for the reduced fare by Dec 1.",
-        "evidence": "Placeholder: Enrollment for the reduced-fare pass closes on December 1."
+        "when": { "transport": "car" },
+        "type": "rule",
+        "text": "You'll need a safety inspection before you renew your car tabs.",
+        "evidence": "Drivers must present a completed safety inspection before renewing vehicle registration."
       }
     ],
-    "otherwise": "This only affects transit riders in Washington."
+    "otherwise": "Drivers are the only people this rule reaches; transit riders and cyclists are not affected."
+  },
+  {
+    "id": "fx-deadline",
+    "topicKey": "fx-student-aid-deadline",
+    "headline": "[FIXTURE] State student aid applications close Dec 1",
+    "summary": "A fake placeholder story used to test the deadline Receipt. Enrolled students must apply by the deadline to get the grant. Non-students have nothing to file.",
+    "source": { "name": "Fixture Education Desk", "url": "https://example.com/fixture/student-aid-deadline", "date": "2026-11-01" },
+    "category": "other",
+    "stage": "in_effect",
+    "featured": true,
+    "needs": ["student"],
+    "receipts": [
+      {
+        "when": { "student": ["4yr", "cc", "grad"] },
+        "type": "deadline",
+        "date": "2026-12-01",
+        "dueDate": "2026-12-01",
+        "text": "Apply for the state grant by December 1 or you lose it for this year.",
+        "evidence": "Applications for the state need grant must be submitted by December 1 to be considered for the current year."
+      }
+    ],
+    "otherwise": "People not enrolled in school have no application to file."
   }
 ]

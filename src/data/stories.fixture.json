@@ -1,0 +1,101 @@
+[
+  {
+    "id": "fx-loans",
+    "topicKey": "fx-federal-loan-interest",
+    "headline": "[FIXTURE] Federal student loan interest resets on Dec 1",
+    "summary": "A fake placeholder story used to test the money Receipt. Federal borrowers would see a higher monthly bill. Private and paid-off borrowers are not covered.",
+    "source": { "name": "Fixture Wire", "url": "https://example.com/fixture/federal-loan-interest", "date": "2026-11-05" },
+    "category": "loans",
+    "stage": "passed",
+    "featured": true,
+    "needs": ["loans"],
+    "receipts": [
+      {
+        "when": { "loans": "federal" },
+        "type": "money",
+        "direction": "cost",
+        "low": 38,
+        "high": 52,
+        "unit": "/mo",
+        "calc": "1.2 point rate increase on a $18,000–$24,000 balance = $38–$52/mo",
+        "text": "Your federal loan payment goes up about $38 to $52 a month starting in December.",
+        "evidence": "Borrowers with federal loans will pay between $38 and $52 more each month once the new rate takes effect."
+      }
+    ],
+    "otherwise": "Private-loan borrowers and people with no student debt keep the same payment.",
+    "alsoReportedBy": []
+  },
+  {
+    "id": "fx-rent",
+    "topicKey": "fx-wa-rent-cap",
+    "headline": "[FIXTURE] Washington caps yearly rent increases",
+    "summary": "A fake placeholder story used to test ask-in-context. A state cap would limit how much rent can rise each year. Non-renters get a rules-only Receipt.",
+    "source": { "name": "Fixture State Standard", "url": "https://example.com/fixture/wa-rent-cap", "date": "2026-11-03" },
+    "category": "rent",
+    "stage": "in_effect",
+    "featured": true,
+    "needs": ["housing"],
+    "receipts": [
+      {
+        "when": { "state": "WA", "housing": "renting" },
+        "type": "money",
+        "direction": "saving",
+        "low": 30,
+        "high": 45,
+        "unit": "/mo",
+        "calc": "cap holds the increase to 3% instead of 6% on $1,000–$1,500 rent = $30–$45/mo saved",
+        "text": "Your rent can't rise more than the state cap, saving you about $30 to $45 a month.",
+        "evidence": "The cap limits annual rent increases to 3 percent, about $30 to $45 a month less than last year's typical increase."
+      },
+      {
+        "when": { "state": "WA", "housing": ["dorm", "family", "own"] },
+        "type": "rule",
+        "text": "The new rent cap doesn't set your housing cost, but it applies if you rent later.",
+        "evidence": "The cap applies only to tenants with a residential lease, not to dorm residents or homeowners."
+      }
+    ],
+    "otherwise": "Renters outside Washington are not covered by this cap."
+  },
+  {
+    "id": "fx-rule",
+    "topicKey": "fx-wa-car-tab-rule",
+    "headline": "[FIXTURE] New inspection rule for cars registered in Washington",
+    "summary": "A fake placeholder story used to test the not-affected state. Drivers would need a new inspection at renewal. People who don't drive are unaffected.",
+    "source": { "name": "Fixture Daily", "url": "https://example.com/fixture/wa-car-inspection", "date": "2026-10-30" },
+    "category": "transit",
+    "stage": "passed",
+    "featured": true,
+    "needs": ["transport"],
+    "receipts": [
+      {
+        "when": { "transport": "car" },
+        "type": "rule",
+        "text": "You'll need a safety inspection before you renew your car tabs.",
+        "evidence": "Drivers must present a completed safety inspection before renewing vehicle registration."
+      }
+    ],
+    "otherwise": "Drivers are the only people this rule reaches; transit riders and cyclists are not affected."
+  },
+  {
+    "id": "fx-deadline",
+    "topicKey": "fx-student-aid-deadline",
+    "headline": "[FIXTURE] State student aid applications close Dec 1",
+    "summary": "A fake placeholder story used to test the deadline Receipt. Enrolled students must apply by the deadline to get the grant. Non-students have nothing to file.",
+    "source": { "name": "Fixture Education Desk", "url": "https://example.com/fixture/student-aid-deadline", "date": "2026-11-01" },
+    "category": "other",
+    "stage": "in_effect",
+    "featured": true,
+    "needs": ["student"],
+    "receipts": [
+      {
+        "when": { "student": ["4yr", "cc", "grad"] },
+        "type": "deadline",
+        "date": "2026-12-01",
+        "dueDate": "2026-12-01",
+        "text": "Apply for the state grant by December 1 or you lose it for this year.",
+        "evidence": "Applications for the state need grant must be submitted by December 1 to be considered for the current year."
+      }
+    ],
+    "otherwise": "People not enrolled in school have no application to file."
+  }
+]
